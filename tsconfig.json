@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+		"strict": true,
+        "lib": [ "es2017" ],
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "outDir": "out",
+        "rootDir": "src",
+        "sourceMap": true,
+        "target": "es6",
+    }
+}

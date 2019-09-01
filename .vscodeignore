@@ -1,0 +1,10 @@
+# Ignore everything
+# https://github.com/Microsoft/vscode-vsce/issues/12#issuecomment-306078884
+*
+*/**
+
+# Whitelist
+!doc/logo.png
+!out/*.js
+!package.json
+!README.md
