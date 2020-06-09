@@ -17,7 +17,25 @@ interface FilterLinesArgs {
 }
 
 
-class Configuration {
+// Export for tests
+export interface ExtensionSettings {
+  caseSensitiveStringSearch: boolean;
+  caseSensitiveRegexSearch: boolean;
+  preserveSearch: boolean;
+  lineNumbers: boolean;
+  createNewTab: boolean;
+}
+
+// Export for tests
+export const DEFAULT_CONFIGURATION: Readonly<ExtensionSettings> = {
+  caseSensitiveStringSearch: false,
+  caseSensitiveRegexSearch: true,
+  preserveSearch: true,
+  lineNumbers: false,
+  createNewTab: true,
+};
+
+class Configuration implements Readonly<ExtensionSettings> {
 
   private config: vscode.WorkspaceConfiguration;
 
@@ -25,18 +43,25 @@ class Configuration {
     this.config = vscode.workspace.getConfiguration('filterlines');
   }
 
-  get caseSensitiveStringSearch() { return this.config.get<boolean>('caseSensitiveStringSearch', false); }
-  get caseSensitiveRegexSearch() { return this.config.get<boolean>('caseSensitiveRegexSearch', true); }
-  get preserveSearch() { return this.config.get<boolean>('preserveSearch', true); }
-  get lineNumbers() { return this.config.get<boolean>('lineNumbers', false); }
-  get createNewTab() { return this.config.get<boolean>('createNewTab', true); }
+  get caseSensitiveStringSearch() { return this.config.get<boolean>('caseSensitiveStringSearch', DEFAULT_CONFIGURATION.caseSensitiveStringSearch); }
+  get caseSensitiveRegexSearch()  { return this.config.get<boolean>('caseSensitiveRegexSearch',  DEFAULT_CONFIGURATION.caseSensitiveRegexSearch);  }
+  get preserveSearch()            { return this.config.get<boolean>('preserveSearch',            DEFAULT_CONFIGURATION.preserveSearch);            }
+  get lineNumbers()               { return this.config.get<boolean>('lineNumbers',               DEFAULT_CONFIGURATION.lineNumbers);               }
+  get createNewTab()              { return this.config.get<boolean>('createNewTab',              DEFAULT_CONFIGURATION.createNewTab);              }
 }
 
+// Export for tests
+export const DI = {
 
-class Storage {
+  getConfiguration(): Readonly<ExtensionSettings> {
+    return new Configuration();
+  }
+};
 
-  latestSearch = '';
-}
+
+const STORAGE = {
+  latestSearch: '',
+};
 
 
 export function activate(this: void, context: vscode.ExtensionContext) {
@@ -76,11 +101,10 @@ export function activate(this: void, context: vscode.ExtensionContext) {
 
 
 function promptFilterLines(editor: vscode.TextEditor, edit: vscode.TextEditorEdit, searchType: SearchType, invertSearch: boolean): void {
-  const config = new Configuration();
-  const storage = new Storage();
+  const config = DI.getConfiguration();
 
   const prompt = `Filter to lines ${invertSearch ? 'not ' : ''}${searchType === 'string' ? 'containing' : 'matching'}: `;
-  let searchText = config.preserveSearch ? storage.latestSearch : '';
+  let searchText = config.preserveSearch ? STORAGE.latestSearch : '';
   if (!searchText) {
     // Use word under cursor
     const wordRange = editor.document.getWordRangeAtPosition(editor.selection.active);
@@ -94,7 +118,7 @@ function promptFilterLines(editor: vscode.TextEditor, edit: vscode.TextEditorEdi
   }).then(searchText => {
     if (searchText !== undefined) {
       if (config.preserveSearch)
-        storage.latestSearch = searchText;
+        STORAGE.latestSearch = searchText;
       const args: FilterLinesArgs = {
         search_type: searchType,
         invert_search: invertSearch,
@@ -106,7 +130,7 @@ function promptFilterLines(editor: vscode.TextEditor, edit: vscode.TextEditorEdi
 }
 
 function filterLines(editor: vscode.TextEditor, edit: vscode.TextEditorEdit, searchText: string, searchType: SearchType, invertSearch: boolean): void {
-  const config = new Configuration();
+  const config = DI.getConfiguration();
 
   const re = constructSearchRegExp(searchText, searchType, config);
 
@@ -145,7 +169,7 @@ function filterLines(editor: vscode.TextEditor, edit: vscode.TextEditorEdit, sea
   }
 }
 
-function constructSearchRegExp(searchText: string, searchType: SearchType, config: Configuration): RegExp {
+function constructSearchRegExp(searchText: string, searchType: SearchType, config: Readonly<ExtensionSettings>): RegExp {
   let flags = '';
   if (searchType === 'string') {
     searchText = escapeRegexp(searchText);
