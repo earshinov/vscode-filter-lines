@@ -1,5 +1,7 @@
 # Filter Lines
 
+[![Build Status](https://travis-ci.com/earshinov/vscode-filter-lines.svg?branch=master)](https://travis-ci.com/earshinov/vscode-filter-lines)
+
 This extension allows to you to filter lines of the current document by a string or a regular expression.
 It is basically a port of [Filter Lines][1] package for Sublime Text.
 
