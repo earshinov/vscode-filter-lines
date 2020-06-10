@@ -5,6 +5,28 @@
   "tasks": [
     {
       "type": "npm",
+      "script": "build:dev",
+      "problemMatcher": {
+        "owner": "babel",
+        "fileLocation": "relative",
+        "pattern": {
+          "regexp": "^(.*?)Error: ([^:]+): ([^(\\n]+)(\\d+:\\d+)?",
+          "file": 2,
+          "location": 4,
+          "code": 1,
+          "message": 3
+        }
+      },
+      "presentation": {
+        "reveal": "never"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "type": "npm",
       "script": "build:watch",
       "problemMatcher": {
         "owner": "babel",
@@ -26,10 +48,7 @@
       "presentation": {
         "reveal": "never"
       },
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
+      "group": "build"
     }
   ]
 }

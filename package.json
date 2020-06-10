@@ -1,11 +1,17 @@
 {
-  "name": "vscode-extension-skeleton",
-  "version": "0.0.0-development",
-  "displayName": "Dude, Where's My Module?",
-  "description": "my personal skeleton for a VSCode extension",
-  "publisher": "jedwards1211",
+  "name": "vscode-extension-template",
+  "displayName": "",
+  "description": "",
+  "icon": "doc/logo.png",
+  "version": "0.1.0",
+  "publisher": "earshinov",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/earshinov/vscode-extension-template.git"
+  },
+  "license": "MIT",
   "engines": {
-    "vscode": "^1.40.0"
+    "vscode": "^1.24.0"
   },
   "categories": [
     "Other"
@@ -13,173 +19,94 @@
   "activationEvents": [
     "onCommand:extension.helloWorld"
   ],
-  "main": "./out/extension.js",
+  "main": "./out/extension",
   "contributes": {
     "commands": [
       {
         "command": "extension.helloWorld",
         "title": "Hello World"
       }
-    ]
+    ],
+    "keybindings": [
+      {
+        "command": "extension.helloWorld",
+        "key": "ctrl-h ctrl-h",
+        "mac": "cmd-h cmd-h"
+      }
+    ],
+    "configuration": {
+      "title": "Hello World",
+      "properties": {
+        "helloWorld.prompt": {
+          "type": "string",
+          "default": "Hello, World!",
+          "description": ""
+        }
+      }
+    }
   },
   "scripts": {
-    "lint": "eslint $npm_package_config_lint",
-    "lint:fix": "eslint $npm_package_config_lint",
-    "lint:watch": "esw --watch $npm_package_config_lint",
-    "prettier": "prettier --write .babelrc.js *.json *.md *.ts 'src/**/*.{js,ts}'",
-    "prettier:check": "prettier --list-different .babelrc.js *.json *.md *.ts 'src/**/*.{js,ts}'",
-    "tsc": "tsc --noEmit",
     "clean": "rimraf out",
-    "build": "babel src --out-dir out --extensions \".js,.ts\" && tsc --emitDeclarationOnly -p ./",
-    "build:watch": "nodemon -e js,ts,json --watch src --watch .babelrc.js --exec \"(babel src --out-dir out --extensions '.js,.ts'; exit 0)\"",
-    "pretest": "BABEL_ENV=coverage npm run build",
-    "test": "rimraf .nyc_output; node ./out/test/runTest.js && nyc report && nyc report --reporter=lcov",
-    "codecov": "nyc report --reporter=text-lcov > coverage.lcov; codecov",
-    "vscode:prepublish": "npm run clean && npm run prettier:check && npm run lint && npm test && npm run build",
-    "open:coverage": "open coverage/lcov-report/index.html",
-    "semantic-release": "semantic-release"
+    "prebuild": "yarn run clean",
+    "build": "tsc --noEmit -p . && babel src --out-dir out --extensions .js,.ts",
+    "build:dev": "tsc --noEmit -p . && babel src --out-dir out --extensions .js,.ts --source-maps",
+    "build:watch": "nodemon -e js,ts,json --watch src --watch .babelrc.js --exec \"babel src --out-dir out --extensions .js,.ts\"",
+    "lint": "tslint -p .",
+    "pretest": "env BABEL_ENV=coverage yarn build && yarn run coverage:clean",
+    "test": "node ./out/test/runTest.js && yarn run nyc check-coverage",
+    "posttest": "yarn run coverage:report",
+    "coverage:clean": "rimraf .nyc_output coverage",
+    "coverage:report": "nyc report --reporter=lcov --reporter=text-summary",
+    "coverage:push": "nyc report --reporter=text-lcov | coveralls",
+    "vscode:prepublish": "yarn run clean && yarn build"
   },
-  "release": {
-    "verifyConditions": [
-      "semantic-release-vsce",
-      "@semantic-release/github"
-    ],
-    "prepare": {
-      "path": "semantic-release-vsce",
-      "packageVsix": "vscode-extension-skeleton.vsix"
-    },
-    "publish": [
-      "semantic-release-vsce",
-      {
-        "path": "@semantic-release/github",
-        "assets": "vscode-extension-skeleton.vsix"
-      }
-    ]
-  },
-  "config": {
-    "lint": "--cache --ext .js,.ts src",
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged && npm run lint && npm run tsc",
-      "commit-msg": "commitlint -e $GIT_PARAMS",
-      "pre-push": "npm test"
-    }
-  },
-  "lint-staged": {
-    "*.{js,ts,json,css,md}": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "commitlint": {
-    "extends": [
-      "@jedwards1211/commitlint-config"
-    ]
-  },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true,
-    "trailingComma": "es5"
+  "devDependencies": {
+    "@babel/cli": "^7.1.5",
+    "@babel/core": "^7.1.6",
+    "@babel/node": "^7.7.4",
+    "@babel/plugin-transform-runtime": "^7.10.1",
+    "@babel/preset-env": "^7.1.6",
+    "@babel/preset-typescript": "^7.7.2",
+    "@babel/register": "^7.0.0",
+    "@earshinov/tslint-rules": "earshinov/tslint-rules#v1.0.0",
+    "@types/assert": "^1.4.7",
+    "@types/glob": "^7.1.2",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^10.0.0",
+    "@types/sinon": "^9.0.4",
+    "@types/vscode": "^1.24.0",
+    "assert": "^2.0.0",
+    "babel-plugin-istanbul": "^6.0.0",
+    "codecov": "^3.1.0",
+    "coveralls": "^3.1.0",
+    "glob": "^7.1.6",
+    "mocha": "^7.2.0",
+    "nodemon": "^2.0.1",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "sinon": "^9.0.2",
+    "test-exclude": "j03m/test-exclude#j03m/fix2",
+    "tslint": "^5.19.0",
+    "typescript": "^3.7.2",
+    "vsce": "^1.66.0",
+    "vscode-test": "^1.4.0"
   },
   "nyc": {
     "include": [
       "src/**/*.ts"
     ],
     "exclude": [
-      "src/**/*.spec.ts"
+      "src/test/**/*.ts"
     ],
     "require": [
       "@babel/register"
     ],
     "sourceMap": false,
-    "instrument": false
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jedwards1211/vscode-extension-skeleton.git"
-  },
-  "keywords": [
-    "vscode",
-    "extension"
-  ],
-  "author": "Andy Edwards",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/jedwards1211/vscode-extension-skeleton/issues"
-  },
-  "homepage": "https://github.com/jedwards1211/vscode-extension-skeleton#readme",
-  "devDependencies": {
-    "@babel/cli": "^7.1.5",
-    "@babel/core": "^7.1.6",
-    "@babel/node": "^7.7.4",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/plugin-proposal-export-default-from": "^7.0.0",
-    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
-    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.4.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/plugin-proposal-optional-chaining": "^7.6.0",
-    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.1.0",
-    "@babel/preset-env": "^7.1.6",
-    "@babel/preset-typescript": "^7.7.2",
-    "@babel/register": "^7.0.0",
-    "@commitlint/cli": "^6.0.2",
-    "@commitlint/config-conventional": "^6.0.2",
-    "@jedwards1211/commitlint-config": "^1.0.0",
-    "@jedwards1211/eslint-config-typescript": "^1.0.0",
-    "@types/chai": "^4.2.0",
-    "@types/glob": "^7.1.1",
-    "@types/mocha": "^5.2.7",
-    "@types/node": "^12.12.6",
-    "@types/vscode": "^1.40.0",
-    "babel-eslint": "^10.0.1",
-    "babel-plugin-istanbul": "^5.1.0",
-    "chai": "^4.2.0",
-    "codecov": "^3.1.0",
-    "copy": "^0.3.2",
-    "cross-env": "^5.2.0",
-    "eslint": "^5.9.0",
-    "eslint-config-prettier": "^3.3.0",
-    "eslint-watch": "^4.0.2",
-    "fs-extra": "^8.1.0",
-    "glob": "^7.1.6",
-    "husky": "^1.1.4",
-    "istanbul": "^0.4.5",
-    "lint-staged": "^8.0.4",
-    "mocha": "^6.2.1",
-    "nodemon": "^2.0.1",
-    "nyc": "^13.1.0",
-    "prettier": "^1.15.2",
-    "prettier-eslint": "^8.8.2",
-    "rimraf": "^2.6.0",
-    "semantic-release": "^15.1.4",
-    "semantic-release-vsce": "^2.2.8",
-    "typescript": "^3.7.2",
-    "vscode-test": "^1.2.3"
-  },
-  "dependencies": {
-    "@babel/runtime": "^7.1.5"
-  },
-  "renovate": {
-    "extends": [
-      ":separateMajorReleases",
-      ":combinePatchMinorReleases",
-      ":ignoreUnstable",
-      ":prImmediately",
-      ":renovatePrefix",
-      ":updateNotScheduled",
-      ":preserveSemverRanges",
-      ":semanticPrefixFixDepsChoreOthers",
-      ":automergeDisabled",
-      "group:monorepos"
-    ],
-    "automerge": true,
-    "major": {
-      "automerge": false
-    }
+    "instrument": false,
+    "checkCoverage": true,
+    "branches": 80,
+    "lines": 95,
+    "functions": 95,
+    "statements": 95
   }
 }

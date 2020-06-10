@@ -1,39 +1,34 @@
-import path from 'path'
-import Mocha from 'mocha'
-import glob from 'glob'
-import NYC from 'nyc'
+import path from 'path';
+
+import glob from 'glob';
+import Mocha from 'mocha';
+
+import { withCoverage } from './test-infra/coverage';
+
 
 export async function run(): Promise<void> {
-  const nyc = new NYC()
-  await nyc.createTempDirectory()
-  // Create the mocha test
-  const mocha = new Mocha({
-    ui: 'tdd',
-  })
-  mocha.useColors(true)
+  const projectRoot = path.resolve(__dirname, '../../..');
+  const testsRoot = path.resolve(__dirname, '..');
 
-  const testsRoot = path.resolve(__dirname, '..')
+  await withCoverage(projectRoot, async () => {
 
-  const files: Array<string> = await new Promise((resolve, reject) =>
-    glob(
-      '**/**.test.js',
-      {
-        cwd: testsRoot,
-      },
-      (err, files) => {
-        if (err) reject(err)
-        else resolve(files)
-      }
-    )
-  )
+    // Create the mocha test
+    const mocha = new Mocha({
+      ui: 'tdd',
+      // For debugging
+      //timeout: '1h',
+    });
+    mocha.useColors(true);
 
-  // Add files to the test suite
-  files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)))
+    const files: string[] = await new Promise((resolve, reject) => {
+      glob('**/test-*.js', { cwd: testsRoot, }, (err, files) => { err ? reject(err) : resolve(files); });
+    });
 
-  const failures: number = await new Promise(resolve => mocha.run(resolve))
-  await nyc.writeCoverageFile()
+    // Add files to the test suite
+    files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
 
-  if (failures > 0) {
-    throw new Error(`${failures} tests failed.`)
-  }
+    const failures: number = await new Promise(resolve => mocha.run(resolve));
+    if (failures > 0)
+      throw new Error(`${failures} tests failed.`);
+  });
 }
