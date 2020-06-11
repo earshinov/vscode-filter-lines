@@ -2,7 +2,7 @@ import sinon from 'sinon';
 import vscode from 'vscode';
 
 import { LIPSUM } from './test-data';
-import { setEditorText, updateConfiguration, invokeExtension, reopenEditor } from './test-utils';
+import { setEditorText, updateConfiguration, invokeFilterLines, reopenEditor, invokeFilterLinesWithContext } from './test-utils';
 
 
 suite('Preserve search', () => {
@@ -13,11 +13,11 @@ suite('Preserve search', () => {
 
     updateConfiguration({ preserveSearch: true });
 
-    await invokeExtension('filterlines.includeLinesWithRegex', 'ipsum');
+    await invokeFilterLines('filterlines.includeLinesWithRegex', 'ipsum');
 
     editor = await reopenEditor();
 
-    await invokeExtension('filterlines.includeLinesWithRegex', sinon.match({ value: 'ipsum' }), undefined);
+    await invokeFilterLines('filterlines.includeLinesWithRegex', sinon.match({ value: 'ipsum' }), undefined);
   });
 
   test('Preserved search can be turned off', async () => {
@@ -26,11 +26,11 @@ suite('Preserve search', () => {
 
     updateConfiguration({ preserveSearch: false });
 
-    await invokeExtension('filterlines.includeLinesWithRegex', 'ipsum');
+    await invokeFilterLines('filterlines.includeLinesWithRegex', 'ipsum');
 
     editor = await reopenEditor();
 
-    await invokeExtension('filterlines.includeLinesWithRegex', sinon.match({ value: '' }), undefined);
+    await invokeFilterLines('filterlines.includeLinesWithRegex', sinon.match({ value: '' }), undefined);
   });
 
   test('Preserved search is the same for string and regex search', async () => {
@@ -39,11 +39,11 @@ suite('Preserve search', () => {
 
     updateConfiguration({ preserveSearch: true });
 
-    await invokeExtension('filterlines.includeLinesWithRegex', 'ipsum');
+    await invokeFilterLines('filterlines.includeLinesWithRegex', 'ipsum');
 
     editor = await reopenEditor();
 
-    await invokeExtension('filterlines.excludeLinesWithString', sinon.match({ value: 'ipsum' }), undefined);
+    await invokeFilterLines('filterlines.excludeLinesWithString', sinon.match({ value: 'ipsum' }), undefined);
   });
 
   // VSCode API doesn't allow to get a reference to the new window
@@ -53,10 +53,63 @@ suite('Preserve search', () => {
 
     updateConfiguration({ preserveSearch: true });
 
-    await invokeExtension('filterlines.includeLinesWithRegex', 'ipsum');
+    await invokeFilterLines('filterlines.includeLinesWithRegex', 'ipsum');
 
     await vscode.commands.executeCommand('vscode.openFolder');
 
-    await invokeExtension('filterlines.includeLinesWithRegex', sinon.match({ value: sinon.match(value => value !== 'ipsum') }), undefined);
+    await invokeFilterLines('filterlines.includeLinesWithRegex', sinon.match({ value: sinon.match(value => value !== 'ipsum') }), undefined);
+  });
+
+  test('Context is preserved as well', async () => {
+    let editor = vscode.window.activeTextEditor!;
+    await setEditorText(editor, LIPSUM);
+
+    updateConfiguration({ preserveSearch: true });
+
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', '1', 'ipsum');
+
+    editor = await reopenEditor();
+
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', sinon.match({ value: '1', }), sinon.match.any, undefined, undefined);
+  });
+
+  test('Preserved context can be turned off', async () => {
+    let editor = vscode.window.activeTextEditor!;
+    await setEditorText(editor, LIPSUM);
+
+    updateConfiguration({ preserveSearch: false });
+
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', '1', 'ipsum');
+
+    editor = await reopenEditor();
+
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', sinon.match({ value: '' }), sinon.match.any, undefined, undefined);
+  });
+
+  test('Preserved context is the same for string and regex search', async () => {
+    let editor = vscode.window.activeTextEditor!;
+    setEditorText(editor, LIPSUM);
+
+    updateConfiguration({ preserveSearch: true });
+
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', '1', 'ipsum');
+
+    editor = await reopenEditor();
+
+    await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', sinon.match({ value: 'ipsum' }), sinon.match.any, undefined, undefined);
+  });
+
+  // VSCode API doesn't allow to get a reference to the new window
+  test.skip('Preserved context disappears after window is closed', async () => {
+    const editor = vscode.window.activeTextEditor!;
+    setEditorText(editor, LIPSUM);
+
+    updateConfiguration({ preserveSearch: true });
+
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', '1', 'ipsum');
+
+    await vscode.commands.executeCommand('vscode.openFolder');
+
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', sinon.match({ value: sinon.match(value => value !== '1') }), sinon.match.any, undefined, undefined);
   });
 });

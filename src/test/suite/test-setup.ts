@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 
-import { DI } from '../../extension';
+import { DI, clearStorage } from '../../extension';
 import { FAKE_CONFIGURATION, resetConfiguration, updateConfiguration, openEditor, closeEditor } from './test-utils';
 
 
@@ -15,6 +15,9 @@ setup(async () => {
   // `createNewTab: false` is more convenient for testing than the default `true`.
   resetConfiguration();
   updateConfiguration({ createNewTab: false });
+
+  // Clear preservedSearch, if any
+  clearStorage();
 
   // Open a single blank editor
   while (vscode.window.activeTextEditor)

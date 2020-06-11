@@ -21,6 +21,10 @@
     "onCommand:filterlines.includeLinesWithString",
     "onCommand:filterlines.excludeLinesWithRegex",
     "onCommand:filterlines.excludeLinesWithString",
+    "onCommand:filterlines.includeLinesWithRegexAndContext",
+    "onCommand:filterlines.includeLinesWithStringAndContext",
+    "onCommand:filterlines.excludeLinesWithRegexAndContext",
+    "onCommand:filterlines.excludeLinesWithStringAndContext",
     "onCommand:filterlines.promptFilterLines",
     "onCommand:filterlines.filterLines"
   ],
@@ -28,20 +32,36 @@
   "contributes": {
     "commands": [
       {
-        "title": "Filter Lines: Include Lines With Regex",
+        "title": "Filter Lines: Include Lines with Regex",
         "command": "filterlines.includeLinesWithRegex"
       },
       {
-        "title": "Filter Lines: Include Lines With String",
+        "title": "Filter Lines: Include Lines with String",
         "command": "filterlines.includeLinesWithString"
       },
       {
-        "title": "Filter Lines: Exclude Lines With Regex",
+        "title": "Filter Lines: Exclude Lines with Regex",
         "command": "filterlines.excludeLinesWithRegex"
       },
       {
-        "title": "Filter Lines: Exclude Lines With String",
+        "title": "Filter Lines: Exclude Lines with String",
         "command": "filterlines.excludeLinesWithString"
+      },
+      {
+        "title": "Filter Lines: Include Lines with Regex and Context",
+        "command": "filterlines.includeLinesWithRegexAndContext"
+      },
+      {
+        "title": "Filter Lines: Include Lines with String and Context",
+        "command": "filterlines.includeLinesWithStringAndContext"
+      },
+      {
+        "title": "Filter Lines: Exclude Lines with Regex and Context",
+        "command": "filterlines.excludeLinesWithRegexAndContext"
+      },
+      {
+        "title": "Filter Lines: Exclude Lines with String and Context",
+        "command": "filterlines.excludeLinesWithStringAndContext"
       }
     ],
     "keybindings": [

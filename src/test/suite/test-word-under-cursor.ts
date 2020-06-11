@@ -2,7 +2,7 @@ import sinon from 'sinon';
 import vscode from 'vscode';
 
 import { LIPSUM } from './test-data';
-import { setEditorText, updateConfiguration, findPosition, invokeExtension, reopenEditor } from './test-utils';
+import { setEditorText, updateConfiguration, findPosition, invokeFilterLines, reopenEditor } from './test-utils';
 
 
 suite('Word under cursor', () => {
@@ -24,7 +24,7 @@ suite('Word under cursor', () => {
     let pos = findPosition(editor.document, 'fe|ugiat');
     editor.selection = new vscode.Selection(pos, pos);
 
-    await invokeExtension(
+    await invokeFilterLines(
       'filterlines.includeLinesWithRegex',
       sinon.match({
         prompt: sinon.match.any,
@@ -38,7 +38,7 @@ suite('Word under cursor', () => {
     pos = findPosition(editor.document, 'consecte|tur');
     editor.selection = new vscode.Selection(pos, pos);
 
-    await invokeExtension(
+    await invokeFilterLines(
       'filterlines.includeLinesWithRegex',
       sinon.match({
         prompt: sinon.match.any,

@@ -11,7 +11,7 @@ function press(shortcut: string) {
 // VS Code doesn't seem to provide a way to trigger shortcuts programmatically.
 suite.skip('Shortcuts', () => {
 
-  test('"Include Lines With Regex"', async () => {
+  test('"Include Lines with Regex"', async () => {
     await withInputBox(sinon.match({
       prompt: 'Filter to lines matching: ',
       value: sinon.match.any,
@@ -20,7 +20,7 @@ suite.skip('Shortcuts', () => {
     });
   });
 
-  test('"Include Lines With String"', async () => {
+  test('"Include Lines with String"', async () => {
     await withInputBox(sinon.match({
       prompt: 'Filter to lines containing: ',
       value: sinon.match.any,

@@ -10,16 +10,30 @@ It is basically a port of [Filter Lines][1] package for Sublime Text.
 
 ## Available commands
 
-All of the following commands are available in via Ctrl-Shift-P.
+All of the following commands are available via Ctrl-Shift-P.
 
 |Command|Default keybinding|
 |-------|------------------|
-|Filter Lines: Include Lines With Regex|Ctrl-K Ctrl-R|
-|Filter Lines: Include Lines With String|Ctrl-K Ctrl-S|
-|Filter Lines: Exclude Lines With Regex||
-|Filter Lines: Exclude Lines With String||
+|Filter Lines: Include Lines with Regex|Ctrl-K Ctrl-R *|
+|Filter Lines: Include Lines with String|Ctrl-K Ctrl-S *|
+|Filter Lines: Exclude Lines with Regex||
+|Filter Lines: Exclude Lines with String||
+|Filter Lines: Include Lines with Regex and Context||
+|Filter Lines: Include Lines with String and Context||
+|Filter Lines: Exclude Lines with Regex and Context||
+|Filter Lines: Exclude Lines with String and Context||
 
-On Mac, use <kbd>cmd</kbd> instead of <kbd>ctrl</kbd>
+\* Use <kbd>cmd</kbd> instead of <kbd>ctrl</kbd> on Mac
+
+"Regex" commands accept any regular expression valid in JavaScript, except that you cannot really match multiple lines.
+See [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions) for syntax reference, but
+keep in mind that you only need to enter the *inner* part of the regex without the enclosing slashes (`/.../`)
+which one would normally use in JavaScript.
+
+"Context" commands additionally prompt you for the number of lines to include/exclude around a matching line, similarly
+to `grep -A`, `-B`, `-C` options.  You can either enter a single number, or the "before context" and the "after context"
+separated with a colon.  Not that "exclude" commands apply context to the leftover lines rather than the matching lines,
+which mimics `grep -v`.
 
 ## Available settings
 
@@ -39,28 +53,48 @@ You can use these command ids to make your own keybindings.
 
 ### # `filterlines.includeLinesWithRegex`
 
-Implements the "Filter Lines: Include Lines With Regex" command.  Takes no arguments.
+Implements the "Filter Lines: Include Lines with Regex" command.  Takes no arguments.
 
 ### # `filterlines.includeLinesWithString`
 
-Implements the "Filter Lines: Include Lines With String" command.  Takes no arguments.
+Implements the "Filter Lines: Include Lines with String" command.  Takes no arguments.
 
 ### # `filterlines.excludeLinesWithRegex`
 
-Implements the "Filter Lines: Exclude Lines With Regex" command.  Takes no arguments.
+Implements the "Filter Lines: Exclude Lines with Regex" command.  Takes no arguments.
 
 ### # `filterlines.excludeLinesWithString`
 
-Implements the "Filter Lines: Exclude Lines With String" command.  Takes no arguments.
+Implements the "Filter Lines: Exclude Lines with String" command.  Takes no arguments.
+
+### # `filterlines.includeLinesWithRegexAndContext`
+
+Implements the "Filter Lines: Include Lines with Regex and Context" command.  Takes no arguments.
+
+### # `filterlines.includeLinesWithStringAndContext`
+
+Implements the "Filter Lines: Include Lines with String and Context" command.  Takes no arguments.
+
+### # `filterlines.excludeLinesWithRegexAndContext`
+
+Implements the "Filter Lines: Exclude Lines with Regex and Context" command.  Takes no arguments.
+
+### # `filterlines.excludeLinesWithStringAndContext`
+
+Implements the "Filter Lines: Exclude Lines with String and Context" command.  Takes no arguments.
 
 ### # `filterlines.promptFilterLines`
 
-Opens the search string prompt and then performs the action specified in the arguments.
+Displays the necessary prompts and then performs the action specified in the arguments.
 
 |Argument|Possible values|Default value|Description|
 |--------|---------------|-------------|-----------|
 |`search_type`|`"regex"` or `"string"`|`"regex"`|Defines the search type.|
 |`invest_search`|`true` or `false`|`false`|Defines the action type.  By default the "Include" action is performed.  Set `invest_search` to `true` to perform the "Exclude" action.
+|`with_context`|`true` or `false`|`false`|Controls whether to prompt for context.|
+|`context`|any non-negative number|—|Defines the number of leading and trailing context lines.  Only takes effect if `with_context` is `false`.|
+|`before_context`|any non-negative number|—|Defines the number of leading context lines, overriding `context` if it is given.  Only takes effect if `with_context` is `false`.|
+|`after_context`|any non-negative number|—|Defines the number of trailing context lines, overriding `context` if it is given.  Only takes effect if `with_context` is `false`.|
 
 ### # `filterLines.filterLines`
 
@@ -69,8 +103,11 @@ Performs the action specified in the arguments with the given search string.  Ar
 |Argument|Possible values|Default value|Description|
 |--------|---------------|-------------|-----------|
 |`search_type`|`"regex"` or `"string"`|`"regex"`|Defines the search type.|
-|`invest_search`|`true` or `false`|`false`|Defines the action type.  By default the "Include" action is performed.  Set `invest_search` to `true` to perform the "Exclude" action.
-|`needle`|any string|—|Defines the search string, as in the "needle in a haystack" idiom.
+|`invest_search`|`true` or `false`|`false`|Defines the action type.  By default the "Include" action is performed.  Set `invest_search` to `true` to perform the "Exclude" action.|
+|`needle`|any string|`""`|Defines the search string, as in the "needle in a haystack" idiom.|
+|`context`|any non-negative number|—|Defines the number of leading and trailing context lines.|
+|`before_context`|any non-negative number|—|Defines the number of leading context lines, overriding `context` if it is given.|
+|`after_context`|any non-negative number|—|Defines the number of trailing context lines, overriding `context` if it is given.|
 
 ## Differences from the original Filter Lines
 

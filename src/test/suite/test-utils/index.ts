@@ -1,3 +1,4 @@
+import assert from 'assert';
 import sinon from 'sinon';
 import vscode from 'vscode';
 
@@ -40,22 +41,43 @@ export function setEditorText(editor: vscode.TextEditor, editOrText: vscode.Text
 /**
  * Run the given callback with emulated `vscode.window.showInputBox`
  *
- * @param options Expected options of `vscode.window.showInputBox`
- * @param searchText Text to enter into the emulated input box
+ * @param expectedOptions Expected options of `vscode.window.showInputBox`
+ * @param value Text to enter into the emulated input box
  * @param cb
  */
-export async function withInputBox(options: sinon.SinonMatcher, searchText: string | undefined, cb: () => void | Thenable<void>): Promise<void> {
-  const showInputBox = sinon.stub(vscode.window, 'showInputBox');
+export async function withInputBox(expectedOptions: sinon.SinonMatcher, value: string | undefined, cb: () => void | Thenable<void>): Promise<void> {
+  // Sinon doesn't allow to bind two stubs to a single function by design.
+  // https://stackoverflow.com/questions/42404854/possible-to-stub-method-twice-within-a-single-test-to-return-different-results
+  //
+  //const showInputBox = sinon.stub(vscode.window, 'showInputBox');
+  //try {
+  //  showInputBox.resolves(searchText);
+  //
+  //  await cb();
+  //
+  //  sinon.assert.calledOnce(showInputBox);
+  //  if (options !== undefined)
+  //    sinon.assert.calledWith(showInputBox, options);
+  //}
+  //finally {
+  //  showInputBox.restore();
+  //}
+
+  let called = false;
+  const original = vscode.window.showInputBox;
+  vscode.window.showInputBox = options => {
+    called = true;
+    vscode.window.showInputBox = original;
+    sinon.assert.match(options, expectedOptions);
+    return Promise.resolve(value);
+  };
   try {
-    showInputBox.resolves(searchText);
-
     await cb();
-
-    sinon.assert.calledOnce(showInputBox);
-    sinon.assert.calledWith(showInputBox, options);
+    assert.ok(called, 'Expected showInputBox to have been called exactly once');
   }
   finally {
-    showInputBox.restore();
+    if (!called)
+      vscode.window.showInputBox = original;
   }
 }
 
@@ -81,34 +103,97 @@ function untilStable(): Promise<void> {
   });
 }
 
-export type ExtensionCommand =
+export type FilterLinesCommand =
   'filterlines.includeLinesWithRegex' |
   'filterlines.includeLinesWithString' |
   'filterlines.excludeLinesWithRegex' |
   'filterlines.excludeLinesWithString';
 
 /**
- * Invoke the FilterLines extension
+ * Invoke one of "Filter Lines" commands
  */
-export async function invokeExtension(command: ExtensionCommand, searchText: string | undefined): Promise<void>;
-export async function invokeExtension(command: ExtensionCommand, inputBoxOptions: sinon.SinonMatcher, searchText: string | undefined): Promise<void>;
-export async function invokeExtension(command: ExtensionCommand, inputBoxOptionsOrSearchText: sinon.SinonMatcher | string | undefined, optionalSearchText?: string | undefined): Promise<void> {
-  let inputBoxOptions: sinon.SinonMatcher;
+export async function invokeFilterLines(command: FilterLinesCommand, searchText: string | undefined): Promise<void>;
+export async function invokeFilterLines(command: FilterLinesCommand, searchTextOptions: sinon.SinonMatcher, searchText: string | undefined): Promise<void>;
+export async function invokeFilterLines(command: FilterLinesCommand, searchTextOptionsOrSearchText: sinon.SinonMatcher | string | undefined, optionalSearchText?: string | undefined): Promise<void> {
+
+  let searchTextOptions: sinon.SinonMatcher;
   let searchText: string | undefined;
-  if (typeof inputBoxOptionsOrSearchText === 'string' || inputBoxOptionsOrSearchText === undefined) {
-    inputBoxOptions = sinon.match.any;
-    searchText = inputBoxOptionsOrSearchText;
+  if (typeof searchTextOptionsOrSearchText === 'string' || searchTextOptionsOrSearchText == null) {
+    searchTextOptions = sinon.match.any;
+    searchText = searchTextOptionsOrSearchText;
   }
   else {
-    inputBoxOptions = inputBoxOptionsOrSearchText;
+    searchTextOptions = searchTextOptionsOrSearchText;
     searchText = optionalSearchText;
   }
 
-  await withInputBox(inputBoxOptions, searchText, async () => {
+  await withInputBox(searchTextOptions, searchText, async () => {
     await vscode.commands.executeCommand(command);
     if (searchText != null)
       await untilStable();
   });
+}
+
+export type FilterLinesWithContextCommand =
+  'filterlines.includeLinesWithRegexAndContext' |
+  'filterlines.includeLinesWithStringAndContext' |
+  'filterlines.excludeLinesWithRegexAndContext' |
+  'filterlines.excludeLinesWithStringAndContext';
+
+/**
+ * Invoke one of "Filter Lines with Context" commands
+ */
+export async function invokeFilterLinesWithContext(
+  command: FilterLinesWithContextCommand,
+  contextString: string | undefined, searchText: string | undefined,
+): Promise<void>;
+export async function invokeFilterLinesWithContext(
+  command: FilterLinesWithContextCommand,
+  contextStringOptions: sinon.SinonMatcher, searchTextOptions: sinon.SinonMatcher,
+  contextString: string | undefined, searchText: string | undefined,
+): Promise<void>;
+export async function invokeFilterLinesWithContext(
+  command: FilterLinesWithContextCommand,
+  contextStringOptionsOrContextString: sinon.SinonMatcher | string | undefined,
+  searchTextOptionsOrSearchText: sinon.SinonMatcher | string | undefined,
+  optionalContextString?: string | undefined,
+  optionalSearchText?: string | undefined,
+): Promise<void> {
+
+  let contextStringOptions: sinon.SinonMatcher;
+  let contextString: string | undefined;
+  if (typeof contextStringOptionsOrContextString === 'string' || contextStringOptionsOrContextString == null) {
+    contextStringOptions = sinon.match.any;
+    contextString = contextStringOptionsOrContextString;
+  }
+  else {
+    contextStringOptions = contextStringOptionsOrContextString;
+    contextString = optionalContextString;
+  }
+
+  let searchTextOptions: sinon.SinonMatcher;
+  let searchText: string | undefined;
+  if (typeof searchTextOptionsOrSearchText === 'string' || searchTextOptionsOrSearchText == null) {
+    searchTextOptions = sinon.match.any;
+    searchText = searchTextOptionsOrSearchText;
+  }
+  else {
+    searchTextOptions = searchTextOptionsOrSearchText;
+    searchText = optionalSearchText;
+  }
+
+  async function withContextString() {
+    await withInputBox(contextStringOptions, contextString, async () => {
+      await vscode.commands.executeCommand(command);
+      if (contextString != null)
+        await untilStable();
+    });
+  }
+
+  if (contextString != null)
+    await withInputBox(searchTextOptions, searchText, withContextString);
+  else
+    await withContextString();
 }
 
 
