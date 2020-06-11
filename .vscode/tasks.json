@@ -5,9 +5,18 @@
   "tasks": [
     {
       "type": "npm",
-      "script": "watch",
-      "problemMatcher": "$tsc-watch",
-      "isBackground": true,
+      "script": "build:dev",
+      "problemMatcher": {
+        "owner": "babel",
+        "fileLocation": "relative",
+        "pattern": {
+          "regexp": "^(.*?)Error: ([^:]+): ([^(\\n]+)(\\d+:\\d+)?",
+          "file": 2,
+          "location": 4,
+          "code": 1,
+          "message": 3
+        }
+      },
       "presentation": {
         "reveal": "never"
       },
@@ -15,6 +24,31 @@
         "kind": "build",
         "isDefault": true
       }
+    },
+    {
+      "type": "npm",
+      "script": "build:watch",
+      "problemMatcher": {
+        "owner": "babel",
+        "fileLocation": "relative",
+        "pattern": {
+          "regexp": "^(.*?)Error: ([^:]+): ([^(\\n]+)(\\d+:\\d+)?",
+          "file": 2,
+          "location": 4,
+          "code": 1,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\[nodemon\\] starting",
+          "endsPattern": "^Successfully compiled"
+        }
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never"
+      },
+      "group": "build"
     }
   ]
 }

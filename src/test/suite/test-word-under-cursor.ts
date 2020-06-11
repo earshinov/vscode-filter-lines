@@ -1,5 +1,5 @@
-import * as sinon from 'sinon';
-import * as vscode from 'vscode';
+import sinon from 'sinon';
+import vscode from 'vscode';
 
 import { LIPSUM } from './test-data';
 import { setEditorText, updateConfiguration, findPosition, invokeExtension, reopenEditor } from './test-utils';

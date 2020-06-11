@@ -1,5 +1,5 @@
-import * as sinon from 'sinon';
-import * as vscode from 'vscode';
+import sinon from 'sinon';
+import vscode from 'vscode';
 
 import { LIPSUM } from './test-data';
 import { setEditorText, updateConfiguration, invokeExtension, reopenEditor } from './test-utils';
@@ -7,7 +7,7 @@ import { setEditorText, updateConfiguration, invokeExtension, reopenEditor } fro
 
 suite('Preserve search', () => {
 
-  test('Search is preserved', async () => {
+  test('Preserved search works', async () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, LIPSUM);
 
@@ -18,6 +18,19 @@ suite('Preserve search', () => {
     editor = await reopenEditor();
 
     await invokeExtension('filterlines.includeLinesWithRegex', sinon.match({ value: 'ipsum' }), undefined);
+  });
+
+  test('Preserved search can be turned off', async () => {
+    let editor = vscode.window.activeTextEditor!;
+    await setEditorText(editor, LIPSUM);
+
+    updateConfiguration({ preserveSearch: false });
+
+    await invokeExtension('filterlines.includeLinesWithRegex', 'ipsum');
+
+    editor = await reopenEditor();
+
+    await invokeExtension('filterlines.includeLinesWithRegex', sinon.match({ value: '' }), undefined);
   });
 
   test('Preserved search is the same for string and regex search', async () => {
@@ -34,7 +47,7 @@ suite('Preserve search', () => {
   });
 
   // VSCode API doesn't allow to get a reference to the new window
-  test.skip('Search is not preserved after window is closed', async () => {
+  test.skip('Preserved search disappears after window is closed', async () => {
     const editor = vscode.window.activeTextEditor!;
     setEditorText(editor, LIPSUM);
 

@@ -1,7 +1,7 @@
-import * as vscode from 'vscode';
+import vscode from 'vscode';
 
 import { DI } from '../../extension';
-import { FAKE_CONFIGURATION, resetConfiguration, updateConfiguration, openEditor } from './test-utils';
+import { FAKE_CONFIGURATION, resetConfiguration, updateConfiguration, openEditor, closeEditor } from './test-utils';
 
 
 setup(async () => {
@@ -16,10 +16,10 @@ setup(async () => {
   resetConfiguration();
   updateConfiguration({ createNewTab: false });
 
-  // Make sure that there is an open editor
-  let editor = vscode.window.activeTextEditor;
-  if (!editor)
-    editor = await openEditor();
+  // Open a single blank editor
+  while (vscode.window.activeTextEditor)
+     await closeEditor();
+  const editor = await openEditor();
 
   // Always use \n line endings to make document content comparisons predictable
   await editor.edit(edit => {

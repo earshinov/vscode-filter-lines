@@ -1,6 +1,6 @@
-import * as assert from 'assert';
-import * as sinon from 'sinon';
-import * as vscode from 'vscode';
+import assert from 'assert';
+import sinon from 'sinon';
+import vscode from 'vscode';
 
 import { NUMBERS } from './test-data';
 import { setEditorText, invokeExtension } from './test-utils';

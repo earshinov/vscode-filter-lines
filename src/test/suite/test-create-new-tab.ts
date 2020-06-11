@@ -1,8 +1,8 @@
-import * as assert from 'assert';
-import * as vscode from 'vscode';
+import assert from 'assert';
+import vscode from 'vscode';
 
 import { NUMBERS } from './test-data';
-import { setEditorText, updateConfiguration, invokeExtension, trimmed, closeEditor } from './test-utils';
+import { setEditorText, updateConfiguration, invokeExtension, trimmed } from './test-utils';
 
 
 suite('New tab', async () => {
@@ -20,7 +20,6 @@ suite('New tab', async () => {
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText(), '2\n2');
-    await closeEditor();
   });
 
   test('New tab with inverted search', async () => {
@@ -36,7 +35,6 @@ suite('New tab', async () => {
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText(), '1\n3\n4');
-    await closeEditor();
   });
 
   test('New tab with line numbers', async () => {
@@ -56,7 +54,6 @@ suite('New tab', async () => {
       |    1: 2
       |    3: 2
     `));
-    await closeEditor();
   });
 
   test('New tab with inverted search and line numbers', async () => {
@@ -77,6 +74,5 @@ suite('New tab', async () => {
       |    2: 3
       |    4: 4
     `));
-    await closeEditor();
   });
 });

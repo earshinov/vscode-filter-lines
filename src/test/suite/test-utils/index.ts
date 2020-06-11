@@ -1,5 +1,5 @@
-import * as sinon from 'sinon';
-import * as vscode from 'vscode';
+import sinon from 'sinon';
+import vscode from 'vscode';
 
 import { ExtensionSettings, DEFAULT_CONFIGURATION } from '../../../extension';
 import { escapeRegexp } from '../../../utils';

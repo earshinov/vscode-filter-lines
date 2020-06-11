@@ -1,8 +1,8 @@
-import * as vscode from 'vscode';
+import assert from 'assert';
+import vscode from 'vscode';
 
 import { LIPSUM } from './test-data';
 import { setEditorText, updateConfiguration, invokeExtension, reopenEditor } from './test-utils';
-import assert = require('assert');
 
 
 suite('Case sensitivity', () => {

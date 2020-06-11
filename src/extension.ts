@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import vscode from 'vscode';
 
 import { escapeRegexp, catchErrors } from './utils';
 
@@ -35,13 +35,9 @@ export const DEFAULT_CONFIGURATION: Readonly<ExtensionSettings> = {
   createNewTab: true,
 };
 
+/* istanbul ignore next */
 class Configuration implements Readonly<ExtensionSettings> {
-
-  private config: vscode.WorkspaceConfiguration;
-
-  constructor() {
-    this.config = vscode.workspace.getConfiguration('filterlines');
-  }
+  private config = vscode.workspace.getConfiguration('filterlines');
 
   get caseSensitiveStringSearch() { return this.config.get<boolean>('caseSensitiveStringSearch', DEFAULT_CONFIGURATION.caseSensitiveStringSearch); }
   get caseSensitiveRegexSearch()  { return this.config.get<boolean>('caseSensitiveRegexSearch',  DEFAULT_CONFIGURATION.caseSensitiveRegexSearch);  }
@@ -53,6 +49,7 @@ class Configuration implements Readonly<ExtensionSettings> {
 // Export for tests
 export const DI = {
 
+  /* istanbul ignore next */
   getConfiguration(): Readonly<ExtensionSettings> {
     return new Configuration();
   }
