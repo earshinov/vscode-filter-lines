@@ -95,7 +95,7 @@ export async function withInputBox(expectedOptions: sinon.SinonMatcher, value: s
  *
  * Change 200ms to something less like 10ms to watch tests fail.
  */
-function untilStable(): Promise<void> {
+export function untilStable(): Promise<void> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve();

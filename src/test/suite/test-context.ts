@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import vscode from 'vscode';
 
 import { NUMBERS, MORE_NUMBERS } from './test-data';
-import { setEditorText, invokeFilterLines, invokeFilterLinesWithContext, withInputBox } from './test-utils';
+import { setEditorText, invokeFilterLines, invokeFilterLinesWithContext, withInputBox, untilStable } from './test-utils';
 
 
 suite('Context', () => {
@@ -77,5 +77,22 @@ suite('Context', () => {
     await setEditorText(editor, MORE_NUMBERS);
     await invokeFilterLinesWithContext('filterlines.excludeLinesWithRegexAndContext', '1', '[23]');
     assert.equal(editor.document.getText(), '0\n1\n2\n3\n4\n5\n6\n2\n4');
+  });
+
+  test('Context can be passed to promptFilterLines in arguments', async () => {
+    const editor = vscode.window.activeTextEditor!;
+    await setEditorText(editor, MORE_NUMBERS);
+    await withInputBox(sinon.match.any, '2', async () => {
+      await vscode.commands.executeCommand('filterlines.promptFilterLines', { context: 1 });
+      await untilStable();
+    });
+    assert.equal(editor.document.getText(), '1\n2\n2\n2\n3\n6\n2\n4');
+
+    await setEditorText(editor, MORE_NUMBERS);
+    await withInputBox(sinon.match.any, '2', async () => {
+      await vscode.commands.executeCommand('filterlines.promptFilterLines', { before_context: 1, after_context: 0 });
+      await untilStable();
+    });
+    assert.equal(editor.document.getText(), '1\n2\n2\n2\n6\n2\n');
   });
 });
