@@ -75,7 +75,7 @@ suite('Contributed commands', () => {
     await invokeFilterLinesWithContext(
       'filterlines.includeLinesWithRegexAndContext',
       sinon.match({
-        prompt: 'Context',
+        prompt: sinon.match((value: string) => value.startsWith('Context')),
         value: sinon.match.any,
       }),
       sinon.match({
@@ -95,7 +95,7 @@ suite('Contributed commands', () => {
     await invokeFilterLinesWithContext(
       'filterlines.includeLinesWithStringAndContext',
       sinon.match({
-        prompt: 'Context',
+        prompt: sinon.match((value: string) => value.startsWith('Context')),
         value: sinon.match.any,
       }),
       sinon.match({
@@ -115,7 +115,7 @@ suite('Contributed commands', () => {
     await invokeFilterLinesWithContext(
       'filterlines.excludeLinesWithRegexAndContext',
       sinon.match({
-        prompt: 'Context',
+        prompt: sinon.match((value: string) => value.startsWith('Context')),
         value: sinon.match.any,
       }),
       sinon.match({
@@ -135,7 +135,7 @@ suite('Contributed commands', () => {
     await invokeFilterLinesWithContext(
       'filterlines.excludeLinesWithStringAndContext',
       sinon.match({
-        prompt: 'Context',
+        prompt: sinon.match((value: string) => value.startsWith('Context')),
         value: sinon.match.any,
       }),
       sinon.match({

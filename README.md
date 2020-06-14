@@ -30,9 +30,8 @@ See [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_
 keep in mind that you only need to enter the *inner* part of the regex without the enclosing slashes (`/.../`)
 which one would normally use in JavaScript.
 
-"Context" commands additionally prompt you for the number of lines to include/exclude around a matching line, similarly
-to `grep -A`, `-B`, `-C` options.  You can either enter a single number, or the "before context" and the "after context"
-separated with a colon.  Not that "exclude" commands apply context to the leftover lines rather than the matching lines,
+"Context" commands additionally prompt you for the number of lines to include/exclude around a matching line, similarly to
+`grep -A`, `-B`, `-C`.  Not that "exclude" commands apply context to the leftover lines rather than the matching lines,
 which mimics `grep -v`.
 
 ## Available settings

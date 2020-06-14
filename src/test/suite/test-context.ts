@@ -2,8 +2,8 @@ import assert from 'assert';
 import sinon from 'sinon';
 import vscode from 'vscode';
 
-import { NUMBERS, MORE_NUMBERS } from './test-data';
-import { setEditorText, invokeFilterLines, invokeFilterLinesWithContext, withInputBox, untilStable } from './test-utils';
+import { MORE_NUMBERS } from './test-data';
+import { setEditorText, invokeFilterLinesWithContext, withInputBox, untilStable } from './test-utils';
 
 
 suite('Context', () => {
@@ -50,11 +50,6 @@ suite('Context', () => {
 
     const stub = sinon.stub(vscode.window, 'showErrorMessage');
 
-    const expectedMessage = 'Expected a single or two non-negative numbers'.toLowerCase();
-    function isExpectedMessage(message: string) {
-      return message.toLowerCase().includes(expectedMessage);
-    }
-
     try {
       const invalidContextStrings = ['', 'a', '-1', '1:'];
       for (const contextString of invalidContextStrings) {
@@ -63,7 +58,7 @@ suite('Context', () => {
         });
 
         sinon.assert.calledOnce(stub);
-        sinon.assert.match(stub.firstCall.args[0], sinon.match(isExpectedMessage));
+        assert.equal(stub.firstCall.args[0], 'Expected a single number or before_context:after_context');
         stub.reset();
       }
     }

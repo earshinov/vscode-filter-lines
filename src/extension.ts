@@ -163,7 +163,7 @@ async function promptFilterLines(
       [beforeContext, afterContext] = parseContext(contextString);
     }
     catch {
-      await vscode.window.showErrorMessage('Expected a single or two non-negative numbers separated with ":" (<context> or <before_context>:<after_context>)');
+      await vscode.window.showErrorMessage('Expected a single number or before_context:after_context');
       return;
     }
   }
@@ -210,7 +210,7 @@ function promptForContext(config: Readonly<ExtensionSettings>): Thenable<string|
   const contextString = config.preserveSearch ? STORAGE.latestContext : '';
 
   return vscode.window.showInputBox({
-    prompt: 'Context',
+    prompt: 'Context (a single number or before_context:after_context)',
     value: contextString,
   });
 }
