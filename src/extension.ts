@@ -1,6 +1,8 @@
-import vscode, { DocumentHighlight } from 'vscode';
+import vscode from 'vscode';
 
 import { escapeRegexp, catchErrors } from './utils';
+import { IDependencyRegistry, ExtensionSettings, DependencyRegistry } from './di';
+import { IConfiguration } from './configuration';
 
 
 type SearchType = 'string'|'regex';
@@ -24,60 +26,17 @@ interface FilterLinesArgs {
 }
 
 
-// Export for tests
-export interface ExtensionSettings {
-  caseSensitiveStringSearch: boolean;
-  caseSensitiveRegexSearch: boolean;
-  preserveSearch: boolean;
-  lineNumbers: boolean;
-  createNewTab: boolean;
-}
-
-// Export for tests
-export const DEFAULT_CONFIGURATION: Readonly<ExtensionSettings> = {
-  caseSensitiveStringSearch: false,
-  caseSensitiveRegexSearch: true,
-  preserveSearch: true,
-  lineNumbers: false,
-  createNewTab: true,
-};
-
-/* istanbul ignore next */
-class Configuration implements Readonly<ExtensionSettings> {
-  private config = vscode.workspace.getConfiguration('filterlines');
-
-  get caseSensitiveStringSearch() { return this.config.get<boolean>('caseSensitiveStringSearch', DEFAULT_CONFIGURATION.caseSensitiveStringSearch); }
-  get caseSensitiveRegexSearch()  { return this.config.get<boolean>('caseSensitiveRegexSearch',  DEFAULT_CONFIGURATION.caseSensitiveRegexSearch);  }
-  get preserveSearch()            { return this.config.get<boolean>('preserveSearch',            DEFAULT_CONFIGURATION.preserveSearch);            }
-  get lineNumbers()               { return this.config.get<boolean>('lineNumbers',               DEFAULT_CONFIGURATION.lineNumbers);               }
-  get createNewTab()              { return this.config.get<boolean>('createNewTab',              DEFAULT_CONFIGURATION.createNewTab);              }
-}
-
-// Export for tests
 export const DI = {
 
-  /* istanbul ignore next */
-  getConfiguration(): Readonly<ExtensionSettings> {
-    return new Configuration();
+  getRegistry(context: vscode.ExtensionContext): IDependencyRegistry {
+    return new DependencyRegistry(context);
   }
 };
 
 
-const STORAGE = {
-  latestSearch: '',
-  latestContext: '',
-};
+export function activate(this: void, extensionContext: vscode.ExtensionContext) {
 
-// Export for tests
-export function clearStorage() {
-  STORAGE.latestSearch = '';
-  STORAGE.latestContext = '';
-}
-
-
-export function activate(this: void, context: vscode.ExtensionContext) {
-
-  context.subscriptions.push(
+  extensionContext.subscriptions.push(
 
     // Provide wrapper commands to be bound in package.json > "contributes" > "commands".
     // If one command is bound several times with different "args", VS Code only displays the last entry in the Ctrl-Shift-P menu.
@@ -123,7 +82,8 @@ export function activate(this: void, context: vscode.ExtensionContext) {
         before_context = null,
         after_context = null,
       } = args as PromptFilterLinesArgs || {};
-      promptFilterLines(editor, edit, search_type, invert_search, with_context, context, before_context, after_context).then();
+      const registry = DI.getRegistry(extensionContext);
+      promptFilterLines(registry, editor, edit, search_type, invert_search, with_context, context, before_context, after_context).then();
     })),
 
     vscode.commands.registerTextEditorCommand('filterlines.filterLines', catchErrors((editor, edit, args) => {
@@ -135,13 +95,15 @@ export function activate(this: void, context: vscode.ExtensionContext) {
         before_context = null,
         after_context = null,
       } = args as FilterLinesArgs || {};
-      filterLines(editor, edit, needle, search_type, invert_search, context, before_context, after_context);
+      const registry = DI.getRegistry(extensionContext);
+      filterLines(registry, editor, edit, needle, search_type, invert_search, context, before_context, after_context);
     })),
   );
 }
 
 
 async function promptFilterLines(
+  registry: IDependencyRegistry,
   editor: vscode.TextEditor,
   edit: vscode.TextEditorEdit,
   searchType: SearchType,
@@ -151,15 +113,14 @@ async function promptFilterLines(
   beforeContext: number|null,
   afterContext: number|null,
 ): Promise<void> {
-  const config = DI.getConfiguration();
 
-  const searchText = await promptForSearchText(editor, config, searchType, invertSearch);
+  const searchText = await promptForSearchText(registry, editor, searchType, invertSearch);
   if (searchText == null)
     return;
 
   let contextString: string | undefined;
   if (withContext) {
-    contextString = await promptForContext(config);
+    contextString = await promptForContext(registry);
     if (contextString == null)
       return;
 
@@ -172,11 +133,11 @@ async function promptFilterLines(
     }
   }
 
-  if (config.preserveSearch) {
-    STORAGE.latestSearch = searchText;
-    if (contextString != null)
-      STORAGE.latestContext = contextString;
-  }
+  if (registry.configuration.get('preserveSearch'))
+    registry.searchStorage.set('latestSearch', searchText);
+  // Store last used context irrespective of the preserveSearch setting
+  if (contextString != null)
+    registry.contextStorage.set('latestContext', contextString);
 
   const args: FilterLinesArgs = {
     search_type: searchType,
@@ -189,10 +150,10 @@ async function promptFilterLines(
   vscode.commands.executeCommand('filterlines.filterLines', args);
 }
 
-function promptForSearchText(editor: vscode.TextEditor, config: Readonly<ExtensionSettings>, searchType: SearchType, invertSearch: boolean): Thenable<string|undefined> {
+function promptForSearchText(registry: IDependencyRegistry, editor: vscode.TextEditor, searchType: SearchType, invertSearch: boolean): Thenable<string|undefined> {
   const prompt = `Filter to lines ${invertSearch ? 'not ' : ''}${searchType === 'string' ? 'containing' : 'matching'}: `;
 
-  let searchText = config.preserveSearch ? STORAGE.latestSearch : '';
+  let searchText = registry.configuration.get('preserveSearch') ? registry.searchStorage.get('latestSearch') : '';
   if (!searchText) {
     // Use word under cursor
     const wordRange = editor.document.getWordRangeAtPosition(editor.selection.active);
@@ -206,12 +167,10 @@ function promptForSearchText(editor: vscode.TextEditor, config: Readonly<Extensi
   });
 }
 
-function promptForContext(config: Readonly<ExtensionSettings>): Thenable<string|undefined> {
-  const contextString = config.preserveSearch ? STORAGE.latestContext : '';
-
+function promptForContext(registry: IDependencyRegistry): Thenable<string|undefined> {
   return vscode.window.showInputBox({
     prompt: 'Context (a single number or before_context:after_context)',
-    value: contextString,
+    value: registry.contextStorage.get('latestContext'),
   });
 }
 
@@ -243,6 +202,7 @@ function parseContext(contextString: string): [number, number] {
 }
 
 function filterLines(
+  registry: IDependencyRegistry,
   editor: vscode.TextEditor,
   edit: vscode.TextEditorEdit,
   searchText: string,
@@ -256,9 +216,9 @@ function filterLines(
   if (beforeContext == null) beforeContext = context;
   if (afterContext == null) afterContext = context;
 
-  const config = DI.getConfiguration();
+  const config = registry.configuration;
 
-  const re = constructSearchRegExp(searchText, searchType, config);
+  const re = constructSearchRegExp(config, searchText, searchType);
 
   const matchingLines: number[] = [];
   for (let lineno = 0; lineno < editor.document.lineCount; ++lineno) {
@@ -272,11 +232,11 @@ function filterLines(
   }
 
   // Showing filtered output in a new tab
-  if (config.createNewTab) {
+  if (config.get('createNewTab')) {
     const content: string[] = [];
     for (const lineno of matchingLines) {
       const lineText = editor.document.lineAt(lineno).text;
-      if (config.lineNumbers)
+      if (config.get('lineNumbers'))
         content.push(formatLineNumber(lineno));
       content.push(lineText);
       content.push('\n');
@@ -299,7 +259,7 @@ function filterLines(
         --lineno;
       }
       // Insert line number
-      if (config.lineNumbers) {
+      if (config.get('lineNumbers')) {
         const line = editor.document.lineAt(lineno);
         edit.insert(line.range.start, formatLineNumber(lineno));
       }
@@ -313,15 +273,15 @@ function filterLines(
   }
 }
 
-function constructSearchRegExp(searchText: string, searchType: SearchType, config: Readonly<ExtensionSettings>): RegExp {
+function constructSearchRegExp(config: IConfiguration<ExtensionSettings>, searchText: string, searchType: SearchType): RegExp {
   let flags = '';
   if (searchType === 'string') {
     searchText = escapeRegexp(searchText);
-    if (!config.caseSensitiveStringSearch)
+    if (!config.get('caseSensitiveStringSearch'))
       flags += 'i';
   }
   else {
-    if (!config.caseSensitiveRegexSearch)
+    if (!config.get('caseSensitiveRegexSearch'))
       flags += 'i';
   }
   return new RegExp(searchText, flags);

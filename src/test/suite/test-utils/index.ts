@@ -2,7 +2,6 @@ import assert from 'assert';
 import sinon from 'sinon';
 import vscode from 'vscode';
 
-import { ExtensionSettings, DEFAULT_CONFIGURATION } from '../../../extension';
 import { escapeRegexp } from '../../../utils';
 
 export { trimmed } from './trimmed';
@@ -201,48 +200,6 @@ export async function invokeFilterLinesWithContext(
     await withInputBox(contextStringOptions, contextString, withSearchText);
   else
     await withSearchText();
-}
-
-
-/**
- * Fake configuration to be injected into DI.getConfiguration when testing.
- */
-export const FAKE_CONFIGURATION: ExtensionSettings = { ...DEFAULT_CONFIGURATION };
-
-/**
- * Reset the fake configuration to extension defaults.
- */
-export function resetConfiguration() {
-  const settings = FAKE_CONFIGURATION;
-  for (const _key in settings)
-    if (settings.hasOwnProperty(_key)) {
-      const key = _key as keyof ExtensionSettings;
-      settings[key] = DEFAULT_CONFIGURATION[key];
-    }
-}
-
-/**
- * Updates the fake configuration.
- *
- * @example Update a configuration value:
- * ```typescript
- * updateConfiguration({ preserveSearch: true });
- * ```
- *
- * @example Clear a configuration value, effectively setting it to the default:
- * ```typescript
- * updateConfiguration({ preserveSearch: undefined });
- * ```
- *
- * Of course, you can update/clear multiple settings at once.
- */
-export function updateConfiguration(settings: Partial<{[K in keyof ExtensionSettings]: ExtensionSettings[K]|undefined}>): void {
-  for (const _key in settings)
-    if (settings.hasOwnProperty(_key)) {
-      const key = _key as keyof ExtensionSettings;
-      const value = settings[key];
-      FAKE_CONFIGURATION[key] = value !== undefined ? value : DEFAULT_CONFIGURATION[key];
-    }
 }
 
 

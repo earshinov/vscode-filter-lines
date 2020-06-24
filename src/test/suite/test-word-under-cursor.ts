@@ -2,7 +2,8 @@ import sinon from 'sinon';
 import vscode from 'vscode';
 
 import { LIPSUM } from './test-data';
-import { setEditorText, updateConfiguration, findPosition, invokeFilterLines, reopenEditor } from './test-utils';
+import { REGISTRY } from './test-di';
+import { setEditorText, findPosition, invokeFilterLines, reopenEditor } from './test-utils';
 
 
 suite('Word under cursor', () => {
@@ -19,7 +20,7 @@ suite('Word under cursor', () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, LIPSUM);
 
-    updateConfiguration({ preserveSearch });
+    REGISTRY.updateConfiguration({ preserveSearch });
 
     let pos = findPosition(editor.document, 'fe|ugiat');
     editor.selection = new vscode.Selection(pos, pos);

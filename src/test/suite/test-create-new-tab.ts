@@ -2,7 +2,8 @@ import assert from 'assert';
 import vscode from 'vscode';
 
 import { NUMBERS, MORE_NUMBERS } from './test-data';
-import { setEditorText, updateConfiguration, invokeFilterLines, trimmed, invokeFilterLinesWithContext } from './test-utils';
+import { REGISTRY } from './test-di';
+import { setEditorText, invokeFilterLines, trimmed, invokeFilterLinesWithContext } from './test-utils';
 
 
 suite('New tab', async () => {
@@ -11,7 +12,7 @@ suite('New tab', async () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
 
-    updateConfiguration({
+    REGISTRY.updateConfiguration({
       createNewTab: true,
     });
 
@@ -26,7 +27,7 @@ suite('New tab', async () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
 
-    updateConfiguration({
+    REGISTRY.updateConfiguration({
       createNewTab: true,
     });
 
@@ -41,7 +42,7 @@ suite('New tab', async () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
 
-    updateConfiguration({
+    REGISTRY.updateConfiguration({
       createNewTab: true,
       lineNumbers: true,
     });
@@ -60,7 +61,7 @@ suite('New tab', async () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
 
-    updateConfiguration({
+    REGISTRY.updateConfiguration({
       createNewTab: true,
       lineNumbers: true,
     });
@@ -80,7 +81,7 @@ suite('New tab', async () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, MORE_NUMBERS);
 
-    updateConfiguration({
+    REGISTRY.updateConfiguration({
       createNewTab: true,
     });
 
@@ -95,7 +96,7 @@ suite('New tab', async () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, MORE_NUMBERS);
 
-    updateConfiguration({
+    REGISTRY.updateConfiguration({
       createNewTab: true,
     });
 
@@ -110,7 +111,7 @@ suite('New tab', async () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, MORE_NUMBERS);
 
-    updateConfiguration({
+    REGISTRY.updateConfiguration({
       createNewTab: true,
       lineNumbers: true,
     });
@@ -135,7 +136,7 @@ suite('New tab', async () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, MORE_NUMBERS);
 
-    updateConfiguration({
+    REGISTRY.updateConfiguration({
       createNewTab: true,
       lineNumbers: true,
     });

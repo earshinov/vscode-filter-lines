@@ -2,7 +2,8 @@ import assert from 'assert';
 import vscode from 'vscode';
 
 import { LIPSUM } from './test-data';
-import { setEditorText, updateConfiguration, invokeFilterLines, reopenEditor } from './test-utils';
+import { REGISTRY } from './test-di';
+import { setEditorText, invokeFilterLines, reopenEditor } from './test-utils';
 
 
 suite('Case sensitivity', () => {
@@ -11,7 +12,7 @@ suite('Case sensitivity', () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, LIPSUM);
 
-    updateConfiguration({
+    REGISTRY.updateConfiguration({
       caseSensitiveStringSearch: false,
       caseSensitiveRegexSearch: true,
     });  // defaults
@@ -22,7 +23,7 @@ suite('Case sensitivity', () => {
     editor = await reopenEditor();
     await setEditorText(editor, LIPSUM);
 
-    updateConfiguration({
+    REGISTRY.updateConfiguration({
       caseSensitiveStringSearch: true,
       caseSensitiveRegexSearch: true,
     });
@@ -35,7 +36,7 @@ suite('Case sensitivity', () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, LIPSUM);
 
-    updateConfiguration({
+    REGISTRY.updateConfiguration({
       caseSensitiveStringSearch: false,
       caseSensitiveRegexSearch: true,
     });  // defaults
@@ -46,7 +47,7 @@ suite('Case sensitivity', () => {
     editor = await reopenEditor();
     await setEditorText(editor, LIPSUM);
 
-    updateConfiguration({
+    REGISTRY.updateConfiguration({
       caseSensitiveStringSearch: false,
       caseSensitiveRegexSearch: false,
     });
