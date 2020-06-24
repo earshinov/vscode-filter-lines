@@ -28,21 +28,21 @@ class TestDependencyRegistry implements IDependencyRegistry {
   }
 
   /**
-   * Updates the fake configuration.
+   * Updates the fake settings.
    *
-   * @example Update a configuration value:
+   * @example Update a setting:
    * ```typescript
-   * updateConfiguration({ preserveSearch: true });
+   * updateSettings({ preserveSearch: true });
    * ```
    *
-   * @example Clear a configuration value, effectively setting it to the default:
+   * @example Clear a setting, effectively setting it to the default:
    * ```typescript
-   * updateConfiguration({ preserveSearch: undefined });
+   * updateSettings({ preserveSearch: undefined });
    * ```
    *
    * Of course, you can update/clear multiple settings at once.
    */
-  updateConfiguration(settings: Partial<{[K in keyof ExtensionSettings]: ExtensionSettings[K]|undefined}>): void {
+  updateSettings(settings: Partial<{[K in keyof ExtensionSettings]: ExtensionSettings[K]|undefined}>): void {
     for (const _key in settings)
       if (settings.hasOwnProperty(_key)) {
         const key = _key as keyof ExtensionSettings;

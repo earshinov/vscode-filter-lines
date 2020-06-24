@@ -23,7 +23,7 @@ suite('Saved context', () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, LIPSUM);
 
-    REGISTRY.updateConfiguration({ preserveSearch: false });
+    REGISTRY.updateSettings({ preserveSearch: false });
 
     await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', 'ipsum', '1');
 

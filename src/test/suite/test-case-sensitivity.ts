@@ -12,7 +12,7 @@ suite('Case sensitivity', () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, LIPSUM);
 
-    REGISTRY.updateConfiguration({
+    REGISTRY.updateSettings({
       caseSensitiveStringSearch: false,
       caseSensitiveRegexSearch: true,
     });  // defaults
@@ -23,7 +23,7 @@ suite('Case sensitivity', () => {
     editor = await reopenEditor();
     await setEditorText(editor, LIPSUM);
 
-    REGISTRY.updateConfiguration({
+    REGISTRY.updateSettings({
       caseSensitiveStringSearch: true,
       caseSensitiveRegexSearch: true,
     });
@@ -36,7 +36,7 @@ suite('Case sensitivity', () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, LIPSUM);
 
-    REGISTRY.updateConfiguration({
+    REGISTRY.updateSettings({
       caseSensitiveStringSearch: false,
       caseSensitiveRegexSearch: true,
     });  // defaults
@@ -47,7 +47,7 @@ suite('Case sensitivity', () => {
     editor = await reopenEditor();
     await setEditorText(editor, LIPSUM);
 
-    REGISTRY.updateConfiguration({
+    REGISTRY.updateSettings({
       caseSensitiveStringSearch: false,
       caseSensitiveRegexSearch: false,
     });

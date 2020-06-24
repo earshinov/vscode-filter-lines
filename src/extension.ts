@@ -217,6 +217,9 @@ function filterLines(
   if (afterContext == null) afterContext = context;
 
   const config = registry.configuration;
+  const lineNumbers = config.get('lineNumbers');
+  const indentContext = config.get('indentContext');
+  const contextIndentation = indentContext ? getIndentation(editor) : null;
 
   const re = constructSearchRegExp(config, searchText, searchType);
 
@@ -224,10 +227,17 @@ function filterLines(
   for (let lineno = 0; lineno < editor.document.lineCount; ++lineno) {
     const lineText = editor.document.lineAt(lineno).text;
     if (re.test(lineText) !== invertSearch) {
-      const start = Math.max(lineno - beforeContext, matchingLines.length > 0 ? matchingLines[matchingLines.length - 1] + 1 : 0);
-      const end = Math.min(lineno + afterContext + 1, editor.document.lineCount);
-      for (let i = start; i < end; ++i)
-        matchingLines.push(i);
+      if (!indentContext) {
+        // Put context lines into `matchingLines`
+        const min = matchingLines.length > 0 ? matchingLines[matchingLines.length - 1] + 1 : 0;
+        const [start, end] = linesWithContext(editor.document, lineno, beforeContext, afterContext, min);
+        for (let i = start; i < end; ++i)
+          matchingLines.push(i);
+      }
+      else {
+        // Context lines will be handled separately
+        matchingLines.push(lineno);
+      }
     }
   }
 
@@ -235,21 +245,29 @@ function filterLines(
   if (config.get('createNewTab')) {
     const content: string[] = [];
     for (const lineno of matchingLines) {
-      const lineText = editor.document.lineAt(lineno).text;
-      if (config.get('lineNumbers'))
-        content.push(formatLineNumber(lineno));
-      content.push(lineText);
+      formatLine(editor, lineno, null, lineNumbers, content);
       content.push('\n');
+      if (indentContext) {
+        const [start, end] = linesWithContext(editor.document, lineno, beforeContext, afterContext);
+        if (end - start > 1)
+          for (let i = start; i < end; ++i) {
+            formatLine(editor, i, contextIndentation, lineNumbers, content);
+            content.push('\n');
+          }
+      }
     }
-    if (content.length)
-      --content.length;  // remove trailing newline
     vscode.workspace.openTextDocument({ language: editor.document.languageId, content: content.join('') }).then(doc => {
       vscode.window.showTextDocument(doc);
+
+      if (indentContext && config.get('foldIndentedContext'))
+        vscode.commands.executeCommand('editor.foldAll');
     });
   }
 
   // In-place filtering
   else {
+    const eol = editor.document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
+
     let lineno = editor.document.lineCount - 1;
     while (matchingLines.length > 0) {
       const matchingLine = matchingLines.pop()!;
@@ -258,11 +276,25 @@ function filterLines(
         edit.delete(line.rangeIncludingLineBreak);
         --lineno;
       }
-      // Insert line number
-      if (config.get('lineNumbers')) {
-        const line = editor.document.lineAt(lineno);
-        edit.insert(line.range.start, formatLineNumber(lineno));
+      const line = editor.document.lineAt(lineno);
+
+      // Insert context
+      if (indentContext) {
+        const [start, end] = linesWithContext(editor.document, lineno, beforeContext, afterContext);
+        if (end - start > 1) {
+          const content: string[] = [];
+          for (let i = start; i < end; ++i) {
+            content.push(eol);
+            formatLine(editor, i, contextIndentation, lineNumbers, content);
+          }
+          edit.insert(line.range.end, content.join(''));
+        }
       }
+
+      // Insert line number
+      if (lineNumbers)
+        edit.insert(line.range.start, formatLineNumber(lineno));
+
       --lineno;
     }
     while (lineno >= 0) {
@@ -270,6 +302,9 @@ function filterLines(
       edit.delete(line.rangeIncludingLineBreak);
       --lineno;
     }
+
+    if (indentContext && config.get('foldIndentedContext'))
+        vscode.commands.executeCommand('editor.foldLevel1');
   }
 }
 
@@ -287,6 +322,24 @@ function constructSearchRegExp(config: IConfiguration<ExtensionSettings>, search
   return new RegExp(searchText, flags);
 }
 
+function linesWithContext(document: vscode.TextDocument, lineno: number, beforeContext: number, afterContext: number, min = 0): [number, number] {
+  const start = Math.max(lineno - beforeContext, min);
+  const end = Math.min(lineno + afterContext + 1, document.lineCount);
+  return [start, end];
+}
+
+function formatLine(editor: vscode.TextEditor, lineno: number, indentation: string | null, lineNumbers: boolean, acc: string[]): void {
+  if (indentation)
+    acc.push(indentation);
+  if (lineNumbers)
+    acc.push(formatLineNumber(lineno));
+  acc.push(editor.document.lineAt(lineno).text);
+}
+
 function formatLineNumber(lineno: number): string {
   return `${String(lineno).padStart(5)}: `;
+}
+
+function getIndentation(editor: vscode.TextEditor): string {
+  return editor.options.insertSpaces ? ' '.repeat(editor.options.tabSize as number) : '\t';
 }

@@ -17,10 +17,10 @@ suite('Word under cursor', () => {
   });
 
   async function helper(preserveSearch: boolean) {
+    REGISTRY.updateSettings({ preserveSearch });
+
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, LIPSUM);
-
-    REGISTRY.updateConfiguration({ preserveSearch });
 
     let pos = findPosition(editor.document, 'fe|ugiat');
     editor.selection = new vscode.Selection(pos, pos);

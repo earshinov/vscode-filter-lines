@@ -3,7 +3,8 @@ import sinon from 'sinon';
 import vscode from 'vscode';
 
 import { MORE_NUMBERS } from './test-data';
-import { setEditorText, invokeFilterLinesWithContext, withInputBox, untilStable } from './test-utils';
+import { REGISTRY } from './test-di';
+import { setEditorText, invokeFilterLinesWithContext, withInputBox, untilStable, trimmed } from './test-utils';
 
 
 suite('Context', () => {
@@ -37,10 +38,18 @@ suite('Context', () => {
     assert.equal(editor.document.getText(), '1\n2\n2\n2\n3\n4\n6\n2\n4');
   });
 
-  test('Empty context string is allowed and equivalent to filtering without context', async () => {
+  test('Zero context and empty context string are allowed', async () => {
     const editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, MORE_NUMBERS);
     await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '');
+    assert.equal(editor.document.getText(), '2\n2\n2\n2\n');
+
+    await setEditorText(editor, MORE_NUMBERS);
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '0');
+    assert.equal(editor.document.getText(), '2\n2\n2\n2\n');
+
+    await setEditorText(editor, MORE_NUMBERS);
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '0:0');
     assert.equal(editor.document.getText(), '2\n2\n2\n2\n');
   });
 
@@ -95,4 +104,76 @@ suite('Context', () => {
     });
     assert.equal(editor.document.getText(), '1\n2\n2\n2\n6\n2\n');
   });
+
+  // #region New tab
+
+  test('New tab with context', async () => {
+    REGISTRY.updateSettings({ createNewTab: true });
+
+    let editor = vscode.window.activeTextEditor!;
+    await setEditorText(editor, MORE_NUMBERS);
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '1');
+
+    assert.equal(vscode.workspace.textDocuments.length, 2);
+    editor = vscode.window.activeTextEditor!;
+    assert.equal(editor.document.getText(), '1\n2\n2\n2\n3\n6\n2\n4\n');
+  });
+
+  test('New tab with inverted search and context', async () => {
+    REGISTRY.updateSettings({ createNewTab: true });
+
+    let editor = vscode.window.activeTextEditor!;
+    await setEditorText(editor, MORE_NUMBERS);
+    await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', '2', '1');
+
+    assert.equal(vscode.workspace.textDocuments.length, 2);
+    editor = vscode.window.activeTextEditor!;
+    assert.equal(editor.document.getText(), '0\n1\n2\n2\n3\n4\n5\n6\n2\n4\n');
+  });
+
+  test('New tab with line numbers and context', async () => {
+    REGISTRY.updateSettings({ createNewTab: true, lineNumbers: true });
+
+    let editor = vscode.window.activeTextEditor!;
+    await setEditorText(editor, MORE_NUMBERS);
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '1');
+
+    assert.equal(vscode.workspace.textDocuments.length, 2);
+    editor = vscode.window.activeTextEditor!;
+    assert.equal(editor.document.getText().trimRight(), trimmed(`
+      |    1: 1
+      |    2: 2
+      |    3: 2
+      |    4: 2
+      |    5: 3
+      |    8: 6
+      |    9: 2
+      |   10: 4
+    `));
+  });
+
+  test('New tab with inverted search and line numbers and context', async () => {
+    REGISTRY.updateSettings({ createNewTab: true, lineNumbers: true });
+
+    let editor = vscode.window.activeTextEditor!;
+    await setEditorText(editor, MORE_NUMBERS);
+    await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', '2', '1');
+
+    assert.equal(vscode.workspace.textDocuments.length, 2);
+    editor = vscode.window.activeTextEditor!;
+    assert.equal(editor.document.getText().trimRight(), trimmed(`
+      |    0: 0
+      |    1: 1
+      |    2: 2
+      |    4: 2
+      |    5: 3
+      |    6: 4
+      |    7: 5
+      |    8: 6
+      |    9: 2
+      |   10: 4
+    `));
+  });
+
+  // #endregion
 });

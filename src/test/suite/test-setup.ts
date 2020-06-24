@@ -15,16 +15,22 @@ suiteSetup(() => {
 setup(async () => {
 
   // Start each test with pristine configuration.
-  // `createNewTab: false` is more convenient for testing than the default `true`.
   REGISTRY.reset();
-  REGISTRY.updateConfiguration({ createNewTab: false });
+  // Apply some settings which will be our defaults while running tests.
+  REGISTRY.updateSettings({
+    createNewTab: false,
+    indentContext: false,
+    foldIndentedContext: false,
+  });
 
   // Open a single blank editor
   while (vscode.window.activeTextEditor)
      await closeEditor();
   const editor = await openEditor();
 
-  // Always use \n line endings to make document content comparisons predictable
+  // Use given line endings and indentation to make document content comparisons predictable
+  editor.options.tabSize = 2;
+  editor.options.insertSpaces = true;
   await editor.edit(edit => {
     edit.setEndOfLine(vscode.EndOfLine.LF);
   });

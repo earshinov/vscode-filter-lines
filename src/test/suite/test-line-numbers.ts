@@ -9,11 +9,10 @@ import { setEditorText, invokeFilterLines, trimmed } from './test-utils';
 suite('Line numbers', async () => {
 
   test('Line numbers', async () => {
+    REGISTRY.updateSettings({ lineNumbers: true });
+
     const editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
-
-    REGISTRY.updateConfiguration({ lineNumbers: true });
-
     await invokeFilterLines('filterlines.includeLinesWithString', '2');
     // Line numbers should be padded to 5 chars with spaces
     assert.equal(editor.document.getText().trimRight(), trimmed(`
@@ -23,11 +22,10 @@ suite('Line numbers', async () => {
   });
 
   test('Line numbers with inverted search', async () => {
+    REGISTRY.updateSettings({ lineNumbers: true });
+
     const editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
-
-    REGISTRY.updateConfiguration({ lineNumbers: true });
-
     await invokeFilterLines('filterlines.excludeLinesWithString', '2');
     assert.equal(editor.document.getText().trimRight(), trimmed(`
       |    0: 1

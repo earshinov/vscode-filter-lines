@@ -42,7 +42,9 @@ which mimics `grep -v`.
 |`caseSensitiveRegexSearch`|Makes searching by regex case sensitive.|`true`|
 |`preserveSearch`|Tells the extension to preserve the search string.|`true`|
 |`lineNumbers`|Includes line numbers in filtered output.  Line numbers are 0-based and padded to 5 spaces.|`false`|
-|`createNewTab`|Make this setting `false` to have filtered output displayed in-place rather than in a new tab.|`true`|
+|`createNewTab`|Set this setting to `false` to have filtered output displayed in-place rather than in a new tab.|`true`|
+|`indentContext`|Controls how context lines are printed.  When `true`, context lines are placed below the corresponding matching line with additional indent, which works nicely with folding.  When `false`, matching lines and context lines are printed together like `grep -A`, `-B`, `-C` would do.|`true`|
+|`foldIndentedContext`|Fold indented context automatically.  Only tekes effect when `indentContext` is `true`.|`true`|
 
 If you are using Settings UI, you will find these settings under "Filter Lines" section.
 

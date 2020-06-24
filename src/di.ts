@@ -10,6 +10,8 @@ export interface ExtensionSettings {
   preserveSearch: boolean;
   lineNumbers: boolean;
   createNewTab: boolean;
+  indentContext: boolean;
+  foldIndentedContext: boolean;
 }
 
 export interface SavedSearch {
@@ -34,6 +36,8 @@ export const DEFAULT_SETTINGS: Readonly<ExtensionSettings> = {
   preserveSearch: true,
   lineNumbers: false,
   createNewTab: true,
+  indentContext: true,
+  foldIndentedContext: true,
 };
 
 export class DependencyRegistry implements IDependencyRegistry {

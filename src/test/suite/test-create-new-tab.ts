@@ -1,161 +1,65 @@
 import assert from 'assert';
 import vscode from 'vscode';
 
-import { NUMBERS, MORE_NUMBERS } from './test-data';
+import { NUMBERS } from './test-data';
 import { REGISTRY } from './test-di';
-import { setEditorText, invokeFilterLines, trimmed, invokeFilterLinesWithContext } from './test-utils';
+import { setEditorText, invokeFilterLines, trimmed } from './test-utils';
 
 
 suite('New tab', async () => {
 
   test('New tab', async () => {
+    REGISTRY.updateSettings({ createNewTab: true });
+
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
-
-    REGISTRY.updateConfiguration({
-      createNewTab: true,
-    });
-
     await invokeFilterLines('filterlines.includeLinesWithString', '2');
 
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
-    assert.equal(editor.document.getText(), '2\n2');
+    assert.equal(editor.document.getText(), '2\n2\n');
   });
 
   test('New tab with inverted search', async () => {
+    REGISTRY.updateSettings({ createNewTab: true });
+
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
-
-    REGISTRY.updateConfiguration({
-      createNewTab: true,
-    });
-
     await invokeFilterLines('filterlines.excludeLinesWithString', '2');
 
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
-    assert.equal(editor.document.getText(), '1\n3\n4');
+    assert.equal(editor.document.getText(), '1\n3\n4\n');
   });
 
   test('New tab with line numbers', async () => {
+    REGISTRY.updateSettings({ createNewTab: true, lineNumbers: true });
+
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
-
-    REGISTRY.updateConfiguration({
-      createNewTab: true,
-      lineNumbers: true,
-    });
-
     await invokeFilterLines('filterlines.includeLinesWithString', '2');
 
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
-    assert.equal(editor.document.getText(), trimmed(`
+    assert.equal(editor.document.getText().trimRight(), trimmed(`
       |    1: 2
       |    3: 2
     `));
   });
 
   test('New tab with inverted search and line numbers', async () => {
+    REGISTRY.updateSettings({ createNewTab: true, lineNumbers: true });
+
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
-
-    REGISTRY.updateConfiguration({
-      createNewTab: true,
-      lineNumbers: true,
-    });
-
     await invokeFilterLines('filterlines.excludeLinesWithString', '2');
 
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
-    assert.equal(editor.document.getText(), trimmed(`
+    assert.equal(editor.document.getText().trimRight(), trimmed(`
       |    0: 1
       |    2: 3
       |    4: 4
-    `));
-  });
-
-  test('New tab with context', async () => {
-    let editor = vscode.window.activeTextEditor!;
-    await setEditorText(editor, MORE_NUMBERS);
-
-    REGISTRY.updateConfiguration({
-      createNewTab: true,
-    });
-
-    await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '1');
-
-    assert.equal(vscode.workspace.textDocuments.length, 2);
-    editor = vscode.window.activeTextEditor!;
-    assert.equal(editor.document.getText(), '1\n2\n2\n2\n3\n6\n2\n4');
-  });
-
-  test('New tab with inverted search and context', async () => {
-    let editor = vscode.window.activeTextEditor!;
-    await setEditorText(editor, MORE_NUMBERS);
-
-    REGISTRY.updateConfiguration({
-      createNewTab: true,
-    });
-
-    await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', '2', '1');
-
-    assert.equal(vscode.workspace.textDocuments.length, 2);
-    editor = vscode.window.activeTextEditor!;
-    assert.equal(editor.document.getText(), '0\n1\n2\n2\n3\n4\n5\n6\n2\n4');
-  });
-
-  test('New tab with line numbers and context', async () => {
-    let editor = vscode.window.activeTextEditor!;
-    await setEditorText(editor, MORE_NUMBERS);
-
-    REGISTRY.updateConfiguration({
-      createNewTab: true,
-      lineNumbers: true,
-    });
-
-    await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '1');
-
-    assert.equal(vscode.workspace.textDocuments.length, 2);
-    editor = vscode.window.activeTextEditor!;
-    assert.equal(editor.document.getText(), trimmed(`
-      |    1: 1
-      |    2: 2
-      |    3: 2
-      |    4: 2
-      |    5: 3
-      |    8: 6
-      |    9: 2
-      |   10: 4
-    `));
-  });
-
-  test('New tab with inverted search and line numbers and context', async () => {
-    let editor = vscode.window.activeTextEditor!;
-    await setEditorText(editor, MORE_NUMBERS);
-
-    REGISTRY.updateConfiguration({
-      createNewTab: true,
-      lineNumbers: true,
-    });
-
-    await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', '2', '1');
-
-    assert.equal(vscode.workspace.textDocuments.length, 2);
-    editor = vscode.window.activeTextEditor!;
-    assert.equal(editor.document.getText(), trimmed(`
-      |    0: 0
-      |    1: 1
-      |    2: 2
-      |    4: 2
-      |    5: 3
-      |    6: 4
-      |    7: 5
-      |    8: 6
-      |    9: 2
-      |   10: 4
     `));
   });
 });
