@@ -217,6 +217,7 @@ function promptForContext(config: Readonly<ExtensionSettings>): Thenable<string|
 
 const RE_SINGLE_NUMBER = /^\s*(\d+)\s*$/;
 const RE_TWO_NUMBERS = /^\s*(\d+)\s*:\s*(\d+)\s*$/;
+const RE_SPACES = /^\s*$/;
 
 function parseContext(contextString: string): [number, number] {
   let match = RE_SINGLE_NUMBER.exec(contextString);
@@ -230,6 +231,12 @@ function parseContext(contextString: string): [number, number] {
     const beforeContext = parseInt(match[1], 10);
     const afterContext = parseInt(match[2], 10);
     return [beforeContext, afterContext];
+  }
+
+  match = RE_SPACES.exec(contextString);
+  if (match) {
+    const context = 0;
+    return [context, context];
   }
 
   throw new Error(`Invalid context string: '${contextString}'`);

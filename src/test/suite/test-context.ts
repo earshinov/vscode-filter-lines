@@ -37,6 +37,13 @@ suite('Context', () => {
     assert.equal(editor.document.getText(), '1\n2\n2\n2\n3\n4\n6\n2\n4');
   });
 
+  test('Empty context string is allowed and equivalent to filtering without context', async () => {
+    const editor = vscode.window.activeTextEditor!;
+    await setEditorText(editor, MORE_NUMBERS);
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '');
+    assert.equal(editor.document.getText(), '2\n2\n2\n2\n');
+  });
+
   test('Context string can include spaces', async () => {
     const editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, MORE_NUMBERS);
@@ -51,7 +58,7 @@ suite('Context', () => {
     const stub = sinon.stub(vscode.window, 'showErrorMessage');
 
     try {
-      const invalidContextStrings = ['', 'a', '-1', '1:'];
+      const invalidContextStrings = ['a', '-1', '1:'];
       for (const contextString of invalidContextStrings) {
         await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', '', contextString);
 
