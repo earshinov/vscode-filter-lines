@@ -7,6 +7,7 @@ export interface IConfiguration<T extends {[key: string]: any}> {
 }
 
 
+/* istanbul ignore next */
 export class VscodeWorkspaceConfiguration<T extends {[key: string]: any}> implements IConfiguration<T> {
 
   constructor(private readonly config: vscode.WorkspaceConfiguration, private readonly defaults: Readonly<T>) { }

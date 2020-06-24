@@ -8,6 +8,7 @@ export interface IStorage<T extends {[key: string]: any}> {
 }
 
 
+/* istanbul ignore next */
 export class VscodeGlobalStorage<T extends {[key: string]: any}> implements IStorage<T> {
 
   constructor(private readonly data: vscode.Memento, private readonly defaults: Readonly<T>) { }

@@ -87,12 +87,12 @@
         "filterlines.caseSensitiveRegexSearch": {
           "type": "boolean",
           "default": true,
-          "description": "If true, your latest search string or regex will be saved, and then restored for your next search. If false, the search string or regex will be blank"
+          "description": "If true, regex searches are case-sensitive"
         },
         "filterlines.preserveSearch": {
           "type": "boolean",
           "default": true,
-          "description": "string or regex will be blank"
+          "description": "If true, your latest search string or regex will be saved, and then restored for your next search. If false, the search string or regex will be blank"
         },
         "filterlines.lineNumbers": {
           "type": "boolean",
@@ -103,6 +103,16 @@
           "type": "boolean",
           "default": true,
           "description": "Create new tab for filter results"
+        },
+        "filterlines.indentContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "Indent context lines"
+        },
+        "filterlines.foldIndentedContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "Fold indented context lines"
         }
       }
     }

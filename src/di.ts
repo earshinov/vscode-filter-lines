@@ -30,6 +30,7 @@ export interface IDependencyRegistry {
 }
 
 
+// IMPORTANT: Keep this in sync with package.json
 export const DEFAULT_SETTINGS: Readonly<ExtensionSettings> = {
   caseSensitiveStringSearch: false,
   caseSensitiveRegexSearch: true,
@@ -40,6 +41,7 @@ export const DEFAULT_SETTINGS: Readonly<ExtensionSettings> = {
   foldIndentedContext: true,
 };
 
+/* istanbul ignore next */
 export class DependencyRegistry implements IDependencyRegistry {
   private static SEARCH_STORAGE = new GivenStorage({ latestSearch: '' });
 

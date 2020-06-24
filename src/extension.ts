@@ -28,6 +28,7 @@ interface FilterLinesArgs {
 
 export const DI = {
 
+  /* istanbul ignore next */
   getRegistry(context: vscode.ExtensionContext): IDependencyRegistry {
     return new DependencyRegistry(context);
   }
@@ -201,7 +202,7 @@ function parseContext(contextString: string): [number, number] {
   throw new Error(`Invalid context string: '${contextString}'`);
 }
 
-function filterLines(
+async function filterLines(
   registry: IDependencyRegistry,
   editor: vscode.TextEditor,
   edit: vscode.TextEditorEdit,
@@ -211,7 +212,7 @@ function filterLines(
   context: number|null,
   beforeContext: number|null,
   afterContext: number|null,
-): void {
+) {
   if (context == null) context = 0;
   if (beforeContext == null) beforeContext = context;
   if (afterContext == null) afterContext = context;
@@ -256,12 +257,12 @@ function filterLines(
           }
       }
     }
-    vscode.workspace.openTextDocument({ language: editor.document.languageId, content: content.join('') }).then(doc => {
-      vscode.window.showTextDocument(doc);
 
-      if (indentContext && config.get('foldIndentedContext'))
-        vscode.commands.executeCommand('editor.foldAll');
-    });
+    const doc = await vscode.workspace.openTextDocument({ language: editor.document.languageId, content: content.join('') });
+    await vscode.window.showTextDocument(doc);
+
+    if (indentContext && config.get('foldIndentedContext'))
+      fold();
   }
 
   // In-place filtering
@@ -304,7 +305,7 @@ function filterLines(
     }
 
     if (indentContext && config.get('foldIndentedContext'))
-        vscode.commands.executeCommand('editor.foldLevel1');
+        fold();
   }
 }
 
@@ -342,4 +343,9 @@ function formatLineNumber(lineno: number): string {
 
 function getIndentation(editor: vscode.TextEditor): string {
   return editor.options.insertSpaces ? ' '.repeat(editor.options.tabSize as number) : '\t';
+}
+
+/* istanbul ignore next */
+function fold() {
+  setTimeout(() => vscode.commands.executeCommand('editor.foldAll'), 100);
 }
