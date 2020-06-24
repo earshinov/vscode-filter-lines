@@ -64,16 +64,22 @@ export async function withInputBox(expectedOptions: sinon.SinonMatcher, value: s
   //}
 
   let called = false;
+  let options: vscode.InputBoxOptions | undefined;
+
   const original = vscode.window.showInputBox;
-  vscode.window.showInputBox = options => {
+  vscode.window.showInputBox = _options => {
     called = true;
+    options = _options;
     vscode.window.showInputBox = original;
-    sinon.assert.match(options, expectedOptions);
     return Promise.resolve(value);
   };
   try {
     await cb();
+    // IMPORTANT: Make assertions here rather than inside the overridden `showInputBox`. The `showInputBox` function is
+    // expected to be called from the given `cb`, which isn't under out control and which might swallow assertion error,
+    // causing tests to pass even if assertion checks fail.
     assert.ok(called, 'Expected showInputBox to have been called exactly once');
+    sinon.assert.match(options, expectedOptions);
   }
   finally {
     if (!called)
@@ -145,31 +151,21 @@ export type FilterLinesWithContextCommand =
  */
 export async function invokeFilterLinesWithContext(
   command: FilterLinesWithContextCommand,
-  contextString: string | undefined, searchText: string | undefined,
+  searchText: string | undefined,
+  contextString: string | undefined,
 ): Promise<void>;
 export async function invokeFilterLinesWithContext(
   command: FilterLinesWithContextCommand,
-  contextStringOptions: sinon.SinonMatcher, searchTextOptions: sinon.SinonMatcher,
-  contextString: string | undefined, searchText: string | undefined,
+  searchTextOptions: sinon.SinonMatcher, contextStringOptions: sinon.SinonMatcher,
+  searchText: string | undefined, contextString: string | undefined,
 ): Promise<void>;
 export async function invokeFilterLinesWithContext(
   command: FilterLinesWithContextCommand,
-  contextStringOptionsOrContextString: sinon.SinonMatcher | string | undefined,
   searchTextOptionsOrSearchText: sinon.SinonMatcher | string | undefined,
-  optionalContextString?: string | undefined,
+  contextStringOptionsOrContextString: sinon.SinonMatcher | string | undefined,
   optionalSearchText?: string | undefined,
+  optionalContextString?: string | undefined,
 ): Promise<void> {
-
-  let contextStringOptions: sinon.SinonMatcher;
-  let contextString: string | undefined;
-  if (typeof contextStringOptionsOrContextString === 'string' || contextStringOptionsOrContextString == null) {
-    contextStringOptions = sinon.match.any;
-    contextString = contextStringOptionsOrContextString;
-  }
-  else {
-    contextStringOptions = contextStringOptionsOrContextString;
-    contextString = optionalContextString;
-  }
 
   let searchTextOptions: sinon.SinonMatcher;
   let searchText: string | undefined;
@@ -182,18 +178,29 @@ export async function invokeFilterLinesWithContext(
     searchText = optionalSearchText;
   }
 
-  async function withContextString() {
-    await withInputBox(contextStringOptions, contextString, async () => {
+  let contextStringOptions: sinon.SinonMatcher;
+  let contextString: string | undefined;
+  if (typeof contextStringOptionsOrContextString === 'string' || contextStringOptionsOrContextString == null) {
+    contextStringOptions = sinon.match.any;
+    contextString = contextStringOptionsOrContextString;
+  }
+  else {
+    contextStringOptions = contextStringOptionsOrContextString;
+    contextString = optionalContextString;
+  }
+
+  async function withSearchText() {
+    await withInputBox(searchTextOptions, searchText, async () => {
       await vscode.commands.executeCommand(command);
-      if (contextString != null)
+      if (searchText != null)
         await untilStable();
     });
   }
 
-  if (contextString != null)
-    await withInputBox(searchTextOptions, searchText, withContextString);
+  if (searchText != null)
+    await withInputBox(contextStringOptions, contextString, withSearchText);
   else
-    await withContextString();
+    await withSearchText();
 }
 
 

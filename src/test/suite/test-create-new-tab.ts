@@ -84,7 +84,7 @@ suite('New tab', async () => {
       createNewTab: true,
     });
 
-    await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '1', '2');
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '1');
 
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
@@ -99,7 +99,7 @@ suite('New tab', async () => {
       createNewTab: true,
     });
 
-    await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', '1', '2');
+    await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', '2', '1');
 
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
@@ -115,7 +115,7 @@ suite('New tab', async () => {
       lineNumbers: true,
     });
 
-    await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '1', '2');
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '1');
 
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
@@ -140,7 +140,7 @@ suite('New tab', async () => {
       lineNumbers: true,
     });
 
-    await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', '1', '2');
+    await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', '2', '1');
 
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;

@@ -152,8 +152,12 @@ async function promptFilterLines(
   afterContext: number|null,
 ): Promise<void> {
   const config = DI.getConfiguration();
-  let contextString: string | undefined;
 
+  const searchText = await promptForSearchText(editor, config, searchType, invertSearch);
+  if (searchText == null)
+    return;
+
+  let contextString: string | undefined;
   if (withContext) {
     contextString = await promptForContext(config);
     if (contextString == null)
@@ -167,10 +171,6 @@ async function promptFilterLines(
       return;
     }
   }
-
-  const searchText = await promptForSearchText(editor, config, searchType, invertSearch);
-  if (searchText == null)
-    return;
 
   if (config.preserveSearch) {
     STORAGE.latestSearch = searchText;

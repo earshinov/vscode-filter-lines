@@ -75,15 +75,16 @@ suite('Contributed commands', () => {
     await invokeFilterLinesWithContext(
       'filterlines.includeLinesWithRegexAndContext',
       sinon.match({
-        prompt: sinon.match((value: string) => value.startsWith('Context')),
-        value: sinon.match.any,
-      }),
-      sinon.match({
         prompt: 'Filter to lines matching: ',
         value: sinon.match.any,
       }),
+      sinon.match({
+        prompt: sinon.match((value: string) => value.startsWith('Context')),
+        value: sinon.match.any,
+      }),
+      '[23]',
       '1',
-      '[23]');
+    );
 
     assert.equal(editor.document.getText(), '1\n2\n2\n2\n3\n4\n6\n2\n4');
   });
@@ -95,15 +96,16 @@ suite('Contributed commands', () => {
     await invokeFilterLinesWithContext(
       'filterlines.includeLinesWithStringAndContext',
       sinon.match({
-        prompt: sinon.match((value: string) => value.startsWith('Context')),
-        value: sinon.match.any,
-      }),
-      sinon.match({
         prompt: 'Filter to lines containing: ',
         value: sinon.match.any,
       }),
+      sinon.match({
+        prompt: sinon.match((value: string) => value.startsWith('Context')),
+        value: sinon.match.any,
+      }),
+      '2',
       '1',
-      '2');
+    );
 
     assert.equal(editor.document.getText(), '1\n2\n2\n2\n3\n6\n2\n4');
   });
@@ -115,15 +117,16 @@ suite('Contributed commands', () => {
     await invokeFilterLinesWithContext(
       'filterlines.excludeLinesWithRegexAndContext',
       sinon.match({
-        prompt: sinon.match((value: string) => value.startsWith('Context')),
-        value: sinon.match.any,
-      }),
-      sinon.match({
         prompt: 'Filter to lines not matching: ',
         value: sinon.match.any,
       }),
+      sinon.match({
+        prompt: sinon.match((value: string) => value.startsWith('Context')),
+        value: sinon.match.any,
+      }),
+      '[23]',
       '1',
-      '[23]');
+    );
 
     assert.equal(editor.document.getText(), '0\n1\n2\n3\n4\n5\n6\n2\n4');
   });
@@ -135,15 +138,16 @@ suite('Contributed commands', () => {
     await invokeFilterLinesWithContext(
       'filterlines.excludeLinesWithStringAndContext',
       sinon.match({
-        prompt: sinon.match((value: string) => value.startsWith('Context')),
-        value: sinon.match.any,
-      }),
-      sinon.match({
         prompt: 'Filter to lines not containing: ',
         value: sinon.match.any,
       }),
+      sinon.match({
+        prompt: sinon.match((value: string) => value.startsWith('Context')),
+        value: sinon.match.any,
+      }),
+      '2',
       '1',
-      '2');
+    );
 
     assert.equal(editor.document.getText(), '0\n1\n2\n2\n3\n4\n5\n6\n2\n4');
   });

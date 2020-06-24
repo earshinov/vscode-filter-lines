@@ -66,11 +66,11 @@ suite('Preserve search', () => {
 
     updateConfiguration({ preserveSearch: true });
 
-    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', '1', 'ipsum');
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', 'ipsum', '1');
 
     editor = await reopenEditor();
 
-    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', sinon.match({ value: '1', }), sinon.match.any, undefined, undefined);
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', sinon.match.any, sinon.match({ value: '1', }), undefined, undefined);
   });
 
   test('Preserved context can be turned off', async () => {
@@ -79,11 +79,11 @@ suite('Preserve search', () => {
 
     updateConfiguration({ preserveSearch: false });
 
-    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', '1', 'ipsum');
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', 'ipsum', '1');
 
     editor = await reopenEditor();
 
-    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', sinon.match({ value: '' }), sinon.match.any, undefined, undefined);
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', sinon.match.any, sinon.match({ value: '' }), undefined, undefined);
   });
 
   test('Preserved context is the same for string and regex search', async () => {
@@ -92,11 +92,11 @@ suite('Preserve search', () => {
 
     updateConfiguration({ preserveSearch: true });
 
-    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', '1', 'ipsum');
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', 'ipsum', '1');
 
     editor = await reopenEditor();
 
-    await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', sinon.match({ value: 'ipsum' }), sinon.match.any, undefined, undefined);
+    await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', sinon.match.any, sinon.match({ value: 'ipsum' }), undefined, undefined);
   });
 
   // VSCode API doesn't allow to get a reference to the new window
@@ -106,10 +106,10 @@ suite('Preserve search', () => {
 
     updateConfiguration({ preserveSearch: true });
 
-    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', '1', 'ipsum');
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', 'ipsum', '1');
 
     await vscode.commands.executeCommand('vscode.openFolder');
 
-    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', sinon.match({ value: sinon.match(value => value !== '1') }), sinon.match.any, undefined, undefined);
+    await invokeFilterLinesWithContext('filterlines.includeLinesWithRegexAndContext', sinon.match.any, sinon.match({ value: sinon.match(value => value !== '1') }), undefined, undefined);
   });
 });
