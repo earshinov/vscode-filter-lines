@@ -1,12 +1,13 @@
 {
-    "compilerOptions": {
-		"strict": true,
-        "lib": [ "es2017" ],
-        "module": "commonjs",
-        "noImplicitAny": true,
-        "outDir": "out",
-        "rootDir": "src",
-        "sourceMap": true,
-        "target": "es6",
-    }
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "strict": true,
+    "lib": [ "es2017" ],
+    "module": "commonjs",
+    "noImplicitReturns": true,
+    "outDir": "out",
+    "rootDir": "src",
+    "sourceMap": true,
+    "target": "es6"
+  }
 }

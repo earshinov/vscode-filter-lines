@@ -8,7 +8,7 @@ export function catchErrors<T extends (...args: any[]) => void>(fn: T): T {
     try {
       return fn(...args);
     }
-    catch (e) {
+    catch (e) /* istanbul ignore next */ {
       console.error(e);
       throw e;
     }
