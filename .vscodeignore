@@ -8,3 +8,4 @@
 !package.json
 !out/**/*.js
 !README.md
+!CHANGELOG.md
