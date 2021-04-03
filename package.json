@@ -155,12 +155,13 @@
     "mocha": "^7.2.0",
     "nodemon": "^2.0.1",
     "nyc": "^15.1.0",
+    "ovsx": "^0.1.0-next.a9154dc",
     "rimraf": "^3.0.2",
     "sinon": "^9.0.2",
     "test-exclude": "j03m/test-exclude#j03m/fix2",
     "tslint": "^5.19.0",
     "typescript": "^3.7.2",
-    "vsce": "^1.66.0",
+    "vsce": "^1.87.0",
     "vscode-test": "^1.4.0"
   },
   "nyc": {

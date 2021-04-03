@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/earshinov/vscode-filter-lines/badge.svg?branch=master)](https://coveralls.io/github/earshinov/vscode-filter-lines?branch=master)
 
 This extension allows to you to filter lines of the current document by a string or a regular expression.
-It is basically a port of [Filter Lines][1] package for Sublime Text.
+It is basically a port of [Filter Lines][Filter Lines (Sublime Text plugin)] package for Sublime Text.
 
 ![Demo](doc/demo.gif)
 
@@ -117,6 +117,8 @@ Performs the action specified in the arguments with the given search string.  Ar
 3. With `"preserve_search": true` the search string is stored in memory rather than on disk and is cleared as soon as the VS Code window is closed.
 4. With `"line_numbers": true` line numbers are appended even when the search is inverted (that is when an "Exclude…" command is used rather than an "Include…" one).
 
-Happy filtering!
+You can find this extension both in the [Visual Studio Marketplace][] and in the [Open VSX Registry][].  Happy filtering!
 
-[1]: https://packagecontrol.io/packages/Filter%20Lines
+[Filter Lines (Sublime Text plugin)]: https://packagecontrol.io/packages/Filter%20Lines
+[Visual Studio Marketplace]: https://marketplace.visualstudio.com/
+[Open VSX Registry]: https://open-vsx.org/
