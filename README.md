@@ -8,6 +8,8 @@ It is basically a port of [Filter Lines][Filter Lines (Sublime Text plugin)] pac
 
 ![Demo](doc/demo.gif)
 
+(the access log used for this illustration is borrowed [here](https://github.com/antlr/grammars-v4/blob/master/clf/examples/access_log))
+
 ## Available commands
 
 All of the following commands are available via Ctrl-Shift-P.
@@ -44,7 +46,7 @@ which mimics `grep -v`.
 |`lineNumbers`|Includes line numbers in filtered output.  Line numbers are 0-based and padded to 5 spaces.|`false`|
 |`createNewTab`|Set this setting to `false` to have filtered output displayed in-place rather than in a new tab.|`true`|
 |`indentContext`|Controls how context lines are printed.  When `true`, context lines are placed below the corresponding matching line with additional indent, which works nicely with folding.  When `false`, matching lines and context lines are printed together like `grep -A`, `-B`, `-C` would do.|`true`|
-|`foldIndentedContext`|Fold indented context automatically.  Only tekes effect when `indentContext` is `true`.|`true`|
+|`foldIndentedContext`|Fold indented context.  Only takes effect when all of the following applies: a "context" command is used; the entered number of context lines is greater than zero; `indentContext` is `true`.|`true`|
 
 If you are using Settings UI, you will find these settings under "Filter Lines" section.
 
