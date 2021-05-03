@@ -219,7 +219,7 @@ async function filterLines(
 
   const config = registry.configuration;
   const lineNumbers = config.get('lineNumbers');
-  const indentContext = config.get('indentContext');
+  const indentContext = beforeContext + afterContext > 0 && config.get('indentContext');
   const contextIndentation = indentContext ? getIndentation(editor) : null;
 
   const re = constructSearchRegExp(config, searchText, searchType);
