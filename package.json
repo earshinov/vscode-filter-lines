@@ -3,7 +3,7 @@
   "displayName": "Filter Lines",
   "description": "Quickly find all lines matching a string or regular expression",
   "icon": "doc/logo.png",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "publisher": "earshinov",
   "repository": {
     "type": "git",
