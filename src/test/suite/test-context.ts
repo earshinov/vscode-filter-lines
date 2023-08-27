@@ -141,14 +141,14 @@ suite('Context', () => {
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trimRight(), trimmed(`
-      |    1: 1
-      |    2: 2
+      |    2: 1
       |    3: 2
       |    4: 2
-      |    5: 3
-      |    8: 6
-      |    9: 2
-      |   10: 4
+      |    5: 2
+      |    6: 3
+      |    9: 6
+      |   10: 2
+      |   11: 4
     `));
   });
 
@@ -162,16 +162,16 @@ suite('Context', () => {
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trimRight(), trimmed(`
-      |    0: 0
-      |    1: 1
-      |    2: 2
-      |    4: 2
-      |    5: 3
-      |    6: 4
-      |    7: 5
-      |    8: 6
-      |    9: 2
-      |   10: 4
+      |    1: 0
+      |    2: 1
+      |    3: 2
+      |    5: 2
+      |    6: 3
+      |    7: 4
+      |    8: 5
+      |    9: 6
+      |   10: 2
+      |   11: 4
     `));
   });
 

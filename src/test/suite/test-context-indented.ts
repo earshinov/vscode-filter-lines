@@ -144,22 +144,22 @@ suite('Indented context', () => {
     await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '1');
     // Line numbers should be padded to 5 chars with spaces
     assert.equal(editor.document.getText().trimRight(), trimmed(`
-      |    2: 2
-      |      1: 1
-      |      2: 2
-      |      3: 2
       |    3: 2
-      |      2: 2
+      |      2: 1
       |      3: 2
       |      4: 2
       |    4: 2
       |      3: 2
       |      4: 2
-      |      5: 3
-      |    9: 2
-      |      8: 6
-      |      9: 2
-      |     10: 4
+      |      5: 2
+      |    5: 2
+      |      4: 2
+      |      5: 2
+      |      6: 3
+      |   10: 2
+      |      9: 6
+      |     10: 2
+      |     11: 4
     `));
   });
 
@@ -170,28 +170,28 @@ suite('Indented context', () => {
     await setEditorText(editor, MORE_NUMBERS);
     await invokeFilterLinesWithContext('filterlines.excludeLinesWithRegexAndContext', '[23]', '1');
     assert.equal(editor.document.getText().trimRight(), trimmed(`
-      |    0: 0
-      |      0: 0
-      |      1: 1
-      |    1: 1
-      |      0: 0
-      |      1: 1
-      |      2: 2
-      |    6: 4
-      |      5: 3
-      |      6: 4
-      |      7: 5
-      |    7: 5
-      |      6: 4
-      |      7: 5
-      |      8: 6
-      |    8: 6
-      |      7: 5
-      |      8: 6
-      |      9: 2
-      |   10: 4
-      |      9: 2
-      |     10: 4
+      |    1: 0
+      |      1: 0
+      |      2: 1
+      |    2: 1
+      |      1: 0
+      |      2: 1
+      |      3: 2
+      |    7: 4
+      |      6: 3
+      |      7: 4
+      |      8: 5
+      |    8: 5
+      |      7: 4
+      |      8: 5
+      |      9: 6
+      |    9: 6
+      |      8: 5
+      |      9: 6
+      |     10: 2
+      |   11: 4
+      |     10: 2
+      |     11: 4
     `));
   });
 
@@ -285,22 +285,22 @@ suite('Indented context', () => {
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trimRight(), trimmed(`
-      |    2: 2
-      |      1: 1
-      |      2: 2
-      |      3: 2
       |    3: 2
-      |      2: 2
+      |      2: 1
       |      3: 2
       |      4: 2
       |    4: 2
       |      3: 2
       |      4: 2
-      |      5: 3
-      |    9: 2
-      |      8: 6
-      |      9: 2
-      |     10: 4
+      |      5: 2
+      |    5: 2
+      |      4: 2
+      |      5: 2
+      |      6: 3
+      |   10: 2
+      |      9: 6
+      |     10: 2
+      |     11: 4
     `));
   });
 
@@ -314,28 +314,28 @@ suite('Indented context', () => {
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trimRight(), trimmed(`
-      |    0: 0
-      |      0: 0
-      |      1: 1
-      |    1: 1
-      |      0: 0
-      |      1: 1
-      |      2: 2
-      |    6: 4
-      |      5: 3
-      |      6: 4
-      |      7: 5
-      |    7: 5
-      |      6: 4
-      |      7: 5
-      |      8: 6
-      |    8: 6
-      |      7: 5
-      |      8: 6
-      |      9: 2
-      |   10: 4
-      |      9: 2
-      |     10: 4
+      |    1: 0
+      |      1: 0
+      |      2: 1
+      |    2: 1
+      |      1: 0
+      |      2: 1
+      |      3: 2
+      |    7: 4
+      |      6: 3
+      |      7: 4
+      |      8: 5
+      |    8: 5
+      |      7: 4
+      |      8: 5
+      |      9: 6
+      |    9: 6
+      |      8: 5
+      |      9: 6
+      |     10: 2
+      |   11: 4
+      |     10: 2
+      |     11: 4
     `));
   });
 

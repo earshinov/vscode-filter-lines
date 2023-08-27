@@ -43,7 +43,7 @@ which mimics `grep -v`.
 |`caseSensitiveStringSearch`|Makes searching by string case sensitive.  Instead of changing this setting to `true` you can use regexp search that is case sensitive by default.|`false`|
 |`caseSensitiveRegexSearch`|Makes searching by regex case sensitive.|`true`|
 |`preserveSearch`|Tells the extension to preserve the search string.|`true`|
-|`lineNumbers`|Includes line numbers in filtered output.  Line numbers are 0-based and padded to 5 spaces.|`false`|
+|`lineNumbers`|Includes line numbers in filtered output.  Line numbers are 1-based and padded to 5 spaces.|`false`|
 |`createNewTab`|Set this setting to `false` to have filtered output displayed in-place rather than in a new tab.|`true`|
 |`indentContext`|Controls how context lines are printed.  When `true`, context lines are placed below the corresponding matching line with additional indent, which works nicely with folding.  When `false`, matching lines and context lines are printed together like `grep -A`, `-B`, `-C` would do.|`true`|
 |`foldIndentedContext`|Fold indented context.  Only takes effect when all of the following applies: a "context" command is used; the entered number of context lines is greater than zero; `indentContext` is `true`.|`true`|
@@ -116,8 +116,9 @@ Performs the action specified in the arguments with the given search string.  Ar
 
 1. Folding is not supported due not VS Code API limitations.
 2. Menu items are not provided, again due to VS Code API limitations.
-3. With `"preserve_search": true` the search string is stored in memory rather than on disk and is cleared as soon as the VS Code window is closed.
-4. With `"line_numbers": true` line numbers are appended even when the search is inverted (that is when an "Exclude…" command is used rather than an "Include…" one).
+3. With `"preserveSearch": true` the search string is stored in memory rather than on disk and is cleared as soon as the VS Code window is closed.
+4. With `"lineNumbers": true` line numbers are 1-based, not 0-based.
+5. With `"lineNumbers": true` line numbers are appended even when the search is inverted (that is, when an "Exclude…" command is used).
 
 You can find this extension both in the [Visual Studio Marketplace][] and in the [Open VSX Registry][].  Happy filtering!
 

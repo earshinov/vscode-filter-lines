@@ -16,8 +16,8 @@ suite('Line numbers', async () => {
     await invokeFilterLines('filterlines.includeLinesWithString', '2');
     // Line numbers should be padded to 5 chars with spaces
     assert.equal(editor.document.getText().trimRight(), trimmed(`
-      |    1: 2
-      |    3: 2
+      |    2: 2
+      |    4: 2
     `));
   });
 
@@ -28,9 +28,9 @@ suite('Line numbers', async () => {
     await setEditorText(editor, NUMBERS);
     await invokeFilterLines('filterlines.excludeLinesWithString', '2');
     assert.equal(editor.document.getText().trimRight(), trimmed(`
-      |    0: 1
-      |    2: 3
-      |    4: 4
+      |    1: 1
+      |    3: 3
+      |    5: 4
     `));
   });
 });

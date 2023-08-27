@@ -338,7 +338,8 @@ function formatLine(editor: vscode.TextEditor, lineno: number, indentation: stri
 }
 
 function formatLineNumber(lineno: number): string {
-  return `${String(lineno).padStart(5)}: `;
+  // +1 to make line numbers 1-based
+  return `${String(lineno + 1).padStart(5)}: `;
 }
 
 function getIndentation(editor: vscode.TextEditor): string {
