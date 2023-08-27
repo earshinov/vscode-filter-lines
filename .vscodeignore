@@ -4,8 +4,9 @@
 */**
 
 # Whitelist
-!doc/logo.png
-!package.json
-!out/**/*.js
-!README.md
 !CHANGELOG.md
+!doc/logo.png
+!LICENSE
+!out/**/*.js
+!package.json
+!README.md
