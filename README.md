@@ -1,6 +1,6 @@
 # Filter Lines
 
-[![Build Status](https://travis-ci.com/earshinov/vscode-filter-lines.svg?branch=master)](https://travis-ci.com/earshinov/vscode-filter-lines)
+[![Build Status](https://github.com/earshinov/vscode-filter-lines/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/earshinov/vscode-filter-lines)
 [![Coverage Status](https://coveralls.io/repos/github/earshinov/vscode-filter-lines/badge.svg?branch=master)](https://coveralls.io/github/earshinov/vscode-filter-lines?branch=master)
 
 This extension allows to you to filter lines of the current document by a string or a regular expression.

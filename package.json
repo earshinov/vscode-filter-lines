@@ -124,13 +124,12 @@
     "build:dev": "tsc --noEmit -p . && babel src --out-dir out --extensions .js,.ts --source-maps",
     "build:watch": "nodemon -e js,ts,json --watch src --watch .babelrc.js --exec \"babel src --out-dir out --extensions .js,.ts\"",
     "lint": "tslint -p .",
-    "pretest": "env BABEL_ENV=coverage yarn build && yarn run coverage:clean",
+    "pretest": "env BABEL_ENV=coverage yarn run build && yarn run coverage:clean",
     "test": "node ./out/test/runTest.js && yarn run nyc check-coverage",
     "posttest": "yarn run coverage:report",
     "coverage:clean": "rimraf .nyc_output coverage",
     "coverage:report": "nyc report --reporter=lcov --reporter=text-summary",
-    "coverage:push": "nyc report --reporter=text-lcov | coveralls",
-    "vscode:prepublish": "yarn run clean && yarn build"
+    "vscode:prepublish": "yarn run clean && yarn run build"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.5",
@@ -150,7 +149,6 @@
     "assert": "^2.0.0",
     "babel-plugin-istanbul": "^6.0.0",
     "codecov": "^3.8.3",
-    "coveralls": "^3.1.0",
     "glob": "^7.1.6",
     "mocha": "^7.2.0",
     "nodemon": "^2.0.1",
