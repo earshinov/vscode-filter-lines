@@ -251,6 +251,13 @@ export async function closeEditor() {
 }
 
 /**
+ * Close all editors
+ */
+export async function closeAllEditors() {
+  await vscode.commands.executeCommand('workbench.action.closeAllEditors');
+}
+
+/**
  * Open a new blank editor
  */
 export async function openEditor(): Promise<vscode.TextEditor> {

@@ -2,7 +2,7 @@ import vscode from 'vscode';
 
 import { DI } from '../../extension';
 import { REGISTRY } from './test-di';
-import { openEditor, closeEditor } from './test-utils';
+import { openEditor, closeEditor, closeAllEditors } from './test-utils';
 
 
 suiteSetup(() => {
@@ -24,8 +24,7 @@ setup(async () => {
   });
 
   // Open a single blank editor
-  while (vscode.window.activeTextEditor)
-     await closeEditor();
+  await closeAllEditors();
   const editor = await openEditor();
 
   // Use given line endings and indentation to make document content comparisons predictable

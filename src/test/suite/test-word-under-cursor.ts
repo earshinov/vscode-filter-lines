@@ -8,13 +8,9 @@ import { setEditorText, findPosition, invokeFilterLines, reopenEditor } from './
 
 suite('Word under cursor', () => {
 
-  test('Without preserveSearch', async () => {
-    helper(false);
-  });
+  test('Without preserveSearch', () => helper(false));
 
-  test('With preserveSearch', async () => {
-    helper(true);
-  });
+  test('With preserveSearch', () => helper(true));
 
   async function helper(preserveSearch: boolean) {
     REGISTRY.updateSettings({ preserveSearch });
@@ -31,7 +27,9 @@ suite('Word under cursor', () => {
         prompt: sinon.match.any,
         value: 'feugiat',
       }),
-      undefined);
+      // We must actually perform the search for search string to be remembered
+      //undefined);
+      'feugiat');
 
     editor = await reopenEditor();
     await setEditorText(editor, LIPSUM);

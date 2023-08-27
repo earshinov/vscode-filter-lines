@@ -16,6 +16,7 @@ async function main(): Promise<void> {
     await runTests({
       extensionDevelopmentPath,
       extensionTestsPath,
+      launchArgs: ['--disable-extensions']
     });
   }
   catch (err) {
