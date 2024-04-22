@@ -1,10 +1,9 @@
 import assert from 'assert';
-import sinon from 'sinon';
 import vscode from 'vscode';
 
-import { MORE_NUMBERS, NUMBERS } from './test-data';
+import { MORE_NUMBERS } from './test-data';
 import { REGISTRY } from './test-di';
-import { setEditorText, invokeFilterLinesWithContext, trimmed, invokeFilterLines } from './test-utils';
+import { setEditorText, invokeFilterLinesWithContext, trimmed, getEditorsCount } from './test-utils';
 
 
 suite('Indented context', () => {
@@ -206,7 +205,7 @@ suite('Indented context', () => {
     await setEditorText(editor, MORE_NUMBERS);
     await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '1');
 
-    assert.equal(vscode.workspace.textDocuments.length, 2);
+    assert.equal(getEditorsCount(), 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trimRight(), trimmed(`
       2
@@ -247,7 +246,7 @@ suite('Indented context', () => {
     await setEditorText(editor, MORE_NUMBERS);
     await invokeFilterLinesWithContext('filterlines.excludeLinesWithRegexAndContext', '[23]', '1');
 
-    assert.equal(vscode.workspace.textDocuments.length, 2);
+    assert.equal(getEditorsCount(), 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trimRight(), trimmed(`
       0
@@ -282,7 +281,7 @@ suite('Indented context', () => {
     await setEditorText(editor, MORE_NUMBERS);
     await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '1');
 
-    assert.equal(vscode.workspace.textDocuments.length, 2);
+    assert.equal(getEditorsCount(), 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trimRight(), trimmed(`
       |    3: 2
@@ -311,7 +310,7 @@ suite('Indented context', () => {
     await setEditorText(editor, MORE_NUMBERS);
     await invokeFilterLinesWithContext('filterlines.excludeLinesWithRegexAndContext', '[23]', '1');
 
-    assert.equal(vscode.workspace.textDocuments.length, 2);
+    assert.equal(getEditorsCount(), 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trimRight(), trimmed(`
       |    1: 0

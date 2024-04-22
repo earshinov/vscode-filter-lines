@@ -11,7 +11,7 @@
   },
   "license": "MIT",
   "engines": {
-    "vscode": "^1.24.0"
+    "vscode": "^1.67.0"
   },
   "categories": [
     "Other"
@@ -145,7 +145,7 @@
     "@types/mocha": "^7.0.2",
     "@types/node": "^10.0.0",
     "@types/sinon": "^9.0.4",
-    "@types/vscode": "^1.24.0",
+    "@types/vscode": "^1.67.0",
     "@vscode/test-cli": "^0.0.9",
     "@vscode/test-electron": "^2.3.9",
     "assert": "^2.0.0",
@@ -160,7 +160,7 @@
     "sinon": "^9.0.2",
     "test-exclude": "j03m/test-exclude#j03m/fix2",
     "tslint": "^5.19.0",
-    "typescript": "^3.7.2",
+    "typescript": "^4.9.5",
     "vsce": "^2.15.0"
   },
   "nyc": {

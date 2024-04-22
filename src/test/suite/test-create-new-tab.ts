@@ -3,7 +3,7 @@ import vscode from 'vscode';
 
 import { NUMBERS } from './test-data';
 import { REGISTRY } from './test-di';
-import { setEditorText, invokeFilterLines, trimmed } from './test-utils';
+import { setEditorText, invokeFilterLines, trimmed, getEditorsCount } from './test-utils';
 
 
 suite('New tab', async () => {
@@ -15,7 +15,7 @@ suite('New tab', async () => {
     await setEditorText(editor, NUMBERS);
     await invokeFilterLines('filterlines.includeLinesWithString', '2');
 
-    assert.equal(vscode.workspace.textDocuments.length, 2);
+    assert.equal(getEditorsCount(), 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText(), '2\n2\n');
   });
@@ -27,7 +27,7 @@ suite('New tab', async () => {
     await setEditorText(editor, NUMBERS);
     await invokeFilterLines('filterlines.excludeLinesWithString', '2');
 
-    assert.equal(vscode.workspace.textDocuments.length, 2);
+    assert.equal(getEditorsCount(), 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText(), '1\n3\n4\n');
   });
@@ -39,7 +39,7 @@ suite('New tab', async () => {
     await setEditorText(editor, NUMBERS);
     await invokeFilterLines('filterlines.includeLinesWithString', '2');
 
-    assert.equal(vscode.workspace.textDocuments.length, 2);
+    assert.equal(getEditorsCount(), 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trimRight(), trimmed(`
       |    2: 2
@@ -54,7 +54,7 @@ suite('New tab', async () => {
     await setEditorText(editor, NUMBERS);
     await invokeFilterLines('filterlines.excludeLinesWithString', '2');
 
-    assert.equal(vscode.workspace.textDocuments.length, 2);
+    assert.equal(getEditorsCount(), 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trimRight(), trimmed(`
       |    1: 1

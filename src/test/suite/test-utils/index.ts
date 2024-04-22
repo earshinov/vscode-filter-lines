@@ -257,6 +257,10 @@ export async function closeAllEditors() {
   await vscode.commands.executeCommand('workbench.action.closeAllEditors');
 }
 
+export function getEditorsCount() {
+  return vscode.window.tabGroups.all.map(tabGroup => tabGroup.tabs.length).reduce((a, b) => a + b, 0);
+}
+
 /**
  * Open a new blank editor
  */

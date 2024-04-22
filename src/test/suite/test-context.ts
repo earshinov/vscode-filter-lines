@@ -4,7 +4,7 @@ import vscode from 'vscode';
 
 import { MORE_NUMBERS } from './test-data';
 import { REGISTRY } from './test-di';
-import { setEditorText, invokeFilterLinesWithContext, withInputBox, untilStable, trimmed } from './test-utils';
+import { setEditorText, invokeFilterLinesWithContext, withInputBox, untilStable, trimmed, getEditorsCount } from './test-utils';
 
 
 suite('Context', () => {
@@ -114,7 +114,7 @@ suite('Context', () => {
     await setEditorText(editor, MORE_NUMBERS);
     await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '1');
 
-    assert.equal(vscode.workspace.textDocuments.length, 2);
+    assert.equal(getEditorsCount(), 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText(), '1\n2\n2\n2\n3\n6\n2\n4\n');
   });
@@ -126,7 +126,7 @@ suite('Context', () => {
     await setEditorText(editor, MORE_NUMBERS);
     await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', '2', '1');
 
-    assert.equal(vscode.workspace.textDocuments.length, 2);
+    assert.equal(getEditorsCount(), 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText(), '0\n1\n2\n2\n3\n4\n5\n6\n2\n4\n');
   });
@@ -138,7 +138,7 @@ suite('Context', () => {
     await setEditorText(editor, MORE_NUMBERS);
     await invokeFilterLinesWithContext('filterlines.includeLinesWithStringAndContext', '2', '1');
 
-    assert.equal(vscode.workspace.textDocuments.length, 2);
+    assert.equal(getEditorsCount(), 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trimRight(), trimmed(`
       |    2: 1
@@ -159,7 +159,7 @@ suite('Context', () => {
     await setEditorText(editor, MORE_NUMBERS);
     await invokeFilterLinesWithContext('filterlines.excludeLinesWithStringAndContext', '2', '1');
 
-    assert.equal(vscode.workspace.textDocuments.length, 2);
+    assert.equal(getEditorsCount(), 2);
     editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trimRight(), trimmed(`
       |    1: 0
