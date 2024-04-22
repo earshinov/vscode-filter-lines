@@ -146,6 +146,8 @@
     "@types/node": "^10.0.0",
     "@types/sinon": "^9.0.4",
     "@types/vscode": "^1.24.0",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.3.9",
     "assert": "^2.0.0",
     "babel-plugin-istanbul": "^6.0.0",
     "codecov": "^3.8.3",
@@ -159,8 +161,7 @@
     "test-exclude": "j03m/test-exclude#j03m/fix2",
     "tslint": "^5.19.0",
     "typescript": "^3.7.2",
-    "vsce": "^2.15.0",
-    "vscode-test": "^1.4.0"
+    "vsce": "^2.15.0"
   },
   "nyc": {
     "include": [
