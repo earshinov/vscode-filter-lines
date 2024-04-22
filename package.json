@@ -179,5 +179,6 @@
     "lines": 95,
     "functions": 95,
     "statements": 95
-  }
+  },
+  "packageManager": "yarn@1.22.1"
 }
