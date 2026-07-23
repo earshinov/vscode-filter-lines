@@ -15,9 +15,8 @@ import { ExtensionToWebview, FormState, WebviewToExtension } from './messages';
 
 
 const STATE_KEY = 'filterLines.formState';
-const HISTORY_LIMIT = 20;
 
-const DEFAULT_STATE: Readonly<FormState> = {
+export const DEFAULT_STATE: Readonly<FormState> = {
   needle: '',
   caseSensitive: false,
   useRegex: true,
@@ -66,19 +65,21 @@ export function activate(this: void, context: vscode.ExtensionContext) {
       webviewOptions: { retainContextWhenHidden: true },
     }),
 
-    // Programmatic entry point (also usable from keybindings).
+    // Programmatic entry point (also usable from keybindings). Returns the runFilter promise
+    // so callers (and tests) awaiting the command wait for filtering to finish.
     vscode.commands.registerCommand('filterlines.filterLines', catchErrors((args: Partial<FilterLinesArgs> | undefined) => {
       const params = argsToParams(args || {});
       const editor = getTargetEditor();
       if (!editor) {
         vscode.window.showInformationMessage('Filter Lines: open a file to filter first.');
-        return;
+        return undefined;
       }
-      runFilter(editor, params).then();
+      return runFilter(editor, params);
     })),
   );
 }
 
+/* istanbul ignore next: nothing to clean up */
 export function deactivate() { /* nothing to clean up */ }
 
 
@@ -215,7 +216,7 @@ async function applyFold(editor: vscode.TextEditor, keptLines: number[], lineCou
 
 // #region Webview view
 
-class FilterLinesViewProvider implements vscode.WebviewViewProvider {
+export class FilterLinesViewProvider implements vscode.WebviewViewProvider {
 
   static readonly viewType = 'filterLines.view';
 

@@ -1,36 +1,16 @@
 import vscode from 'vscode';
 
-import { DI } from '../../extension';
-import { REGISTRY } from './test-di';
-import { openEditor, closeEditor, closeAllEditors } from './test-utils';
+import { closeAllEditors } from './support';
 
 
-suiteSetup(() => {
-
-  // Inject mock dependencies
-  DI.getRegistry = () => REGISTRY;
+suiteSetup(async () => {
+  // Force activation so activate()'s command/view registration runs (and is covered)
+  // before the first test, regardless of which suite runs first.
+  const ext = vscode.extensions.getExtension('earshinov.filter-lines');
+  if (ext && !ext.isActive)
+    await ext.activate();
 });
 
-
-setup(async () => {
-
-  // Start each test with pristine configuration.
-  REGISTRY.reset();
-  // Apply some settings which will be our defaults while running tests.
-  REGISTRY.updateSettings({
-    createNewTab: false,
-    indentContext: false,
-    foldIndentedContext: false,
-  });
-
-  // Open a single blank editor
-  await closeAllEditors();
-  const editor = await openEditor();
-
-  // Use given line endings and indentation to make document content comparisons predictable
-  editor.options.tabSize = 2;
-  editor.options.insertSpaces = true;
-  await editor.edit(edit => {
-    edit.setEndOfLine(vscode.EndOfLine.LF);
-  });
-});
+// Each test opens the documents it needs; start and end from a clean slate.
+setup(closeAllEditors);
+teardown(closeAllEditors);
