@@ -1,0 +1,211 @@
+:root {
+  --gap: 8px;
+}
+
+body {
+  padding: 10px 8px;
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  color: var(--vscode-foreground);
+}
+
+/* Search input and its regex/case toggles side by side. The toggles sit to the
+   right of the input, outside its box, so the input border stays clean
+   (incl. a future invalid-regex state). */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.search--box {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  background: var(--vscode-input-background);
+  border: 1px solid var(--vscode-input-border, transparent);
+  border-radius: 2px;
+}
+
+.search--box:focus-within {
+  border-color: var(--vscode-focusBorder);
+}
+
+/* Invalid state (e.g. empty search) — overrides the focus border too. */
+.search--box-invalid,
+.search--box-invalid:focus-within {
+  border-color: var(--vscode-inputValidation-errorBorder);
+}
+
+.searchValidation {
+  margin-top: 4px;
+  padding: 3px 6px;
+  font-size: 11px;
+  background: var(--vscode-inputValidation-errorBackground);
+  color: var(--vscode-inputValidation-errorForeground, var(--vscode-foreground));
+  border: 1px solid var(--vscode-inputValidation-errorBorder);
+  border-radius: 2px;
+}
+
+.searchValidation[hidden] {
+  display: none;
+}
+
+.search--input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--vscode-input-foreground);
+  padding: 4px 6px;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.search--input::placeholder {
+  color: var(--vscode-input-placeholderForeground);
+}
+
+.search--toggles {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.search--toggle {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 22px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--vscode-icon-foreground, var(--vscode-foreground));
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search--toggle:hover {
+  background: var(--vscode-toolbar-hoverBackground);
+}
+
+.search--toggle-active {
+  background: var(--vscode-inputOption-activeBackground);
+  color: var(--vscode-inputOption-activeForeground);
+  outline: 1px solid var(--vscode-inputOption-activeBorder);
+}
+
+.formRow {
+  margin-top: var(--gap);
+}
+
+/* Compact single-row field: label column on the left, control right after it,
+   so controls across rows line up at the same left edge. */
+.formRow-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.formRow-inline .fieldLabel {
+  flex: 0 0 48px;
+}
+
+.fieldLabel {
+  font-size: inherit;
+  color: var(--vscode-foreground);
+  margin: 0;
+}
+
+.fieldHint {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+  margin-top: 3px;
+}
+
+/* Segmented control built from a group of buttons */
+.buttonGroup {
+  display: inline-flex;
+  border: 1px solid var(--vscode-input-border, var(--vscode-contrastBorder, transparent));
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.buttonGroup--button {
+  border: none;
+  background: var(--vscode-input-background);
+  color: var(--vscode-foreground);
+  padding: 3px 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  border-right: 1px solid var(--vscode-input-border, transparent);
+  white-space: nowrap;
+}
+
+.buttonGroup--button:last-child {
+  border-right: none;
+}
+
+.buttonGroup--button-active {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+
+/* Only non-selected buttons react to hover; clicking the active one is a no-op. */
+.buttonGroup--button:not(.buttonGroup--button-active):hover {
+  background: var(--vscode-toolbar-hoverBackground);
+}
+
+.numberInput {
+  flex: 0 0 auto;
+  margin-left: calc(var(--gap) / 2);
+  width: 40px;
+  height: 22px;
+  box-sizing: border-box;
+  text-align: center;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border, transparent);
+  border-radius: 2px;
+  padding: 2px;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.checkboxRow .fieldLabel {
+  cursor: inherit;
+}
+
+.checkboxRow-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.filterButton {
+  margin-top: 14px;
+  width: 100%;
+  border: none;
+  border-radius: 2px;
+  padding: 6px 12px;
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.filterButton:hover {
+  background: var(--vscode-button-hoverBackground);
+}

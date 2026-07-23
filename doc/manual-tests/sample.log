@@ -1,0 +1,22 @@
+2026-07-23 10:00:01 INFO  Starting service
+2026-07-23 10:00:02 INFO  Loading configuration
+2026-07-23 10:00:02 DEBUG Config path=/etc/app/config.yaml
+2026-07-23 10:00:03 INFO  Connecting to database
+2026-07-23 10:00:04 WARN  Slow query detected (1200ms)
+2026-07-23 10:00:05 INFO  Cache warmed up
+2026-07-23 10:00:06 ERROR Failed to process request id=42
+2026-07-23 10:00:06 DEBUG   at handler.process (handler.js:88)
+2026-07-23 10:00:06 DEBUG   at router.dispatch (router.js:15)
+2026-07-23 10:00:07 INFO  Retrying request id=42
+2026-07-23 10:00:08 INFO  Request id=42 succeeded
+2026-07-23 10:00:09 WARN  Memory usage high (87%)
+2026-07-23 10:00:10 INFO  Scheduled job started
+2026-07-23 10:00:11 ERROR Unhandled exception in job
+2026-07-23 10:00:11 DEBUG   at job.run (job.js:120)
+2026-07-23 10:00:12 INFO  Job finished with errors
+2026-07-23 10:00:13 INFO  Health check OK
+2026-07-23 10:00:14 DEBUG Heartbeat sent
+2026-07-23 10:00:15 WARN  Deprecated API used: /v1/status
+2026-07-23 10:00:16 INFO  Shutting down
+2026-07-23 10:00:17 INFO  Flushing buffers
+2026-07-23 10:00:18 INFO  Bye

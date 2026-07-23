@@ -3,7 +3,7 @@
   "displayName": "Filter Lines",
   "description": "Quickly find all lines matching a string or regular expression",
   "icon": "doc/logo.png",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "publisher": "earshinov",
   "repository": {
     "type": "git",
@@ -17,104 +17,28 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:filterlines.includeLinesWithRegex",
-    "onCommand:filterlines.includeLinesWithString",
-    "onCommand:filterlines.excludeLinesWithRegex",
-    "onCommand:filterlines.excludeLinesWithString",
-    "onCommand:filterlines.includeLinesWithRegexAndContext",
-    "onCommand:filterlines.includeLinesWithStringAndContext",
-    "onCommand:filterlines.excludeLinesWithRegexAndContext",
-    "onCommand:filterlines.excludeLinesWithStringAndContext",
-    "onCommand:filterlines.promptFilterLines",
+    "onView:filterLines.view",
     "onCommand:filterlines.filterLines"
   ],
   "main": "./out/extension",
   "contributes": {
-    "commands": [
-      {
-        "title": "Filter Lines: Include Lines with Regex",
-        "command": "filterlines.includeLinesWithRegex"
-      },
-      {
-        "title": "Filter Lines: Include Lines with String",
-        "command": "filterlines.includeLinesWithString"
-      },
-      {
-        "title": "Filter Lines: Exclude Lines with Regex",
-        "command": "filterlines.excludeLinesWithRegex"
-      },
-      {
-        "title": "Filter Lines: Exclude Lines with String",
-        "command": "filterlines.excludeLinesWithString"
-      },
-      {
-        "title": "Filter Lines: Include Lines with Regex and Context",
-        "command": "filterlines.includeLinesWithRegexAndContext"
-      },
-      {
-        "title": "Filter Lines: Include Lines with String and Context",
-        "command": "filterlines.includeLinesWithStringAndContext"
-      },
-      {
-        "title": "Filter Lines: Exclude Lines with Regex and Context",
-        "command": "filterlines.excludeLinesWithRegexAndContext"
-      },
-      {
-        "title": "Filter Lines: Exclude Lines with String and Context",
-        "command": "filterlines.excludeLinesWithStringAndContext"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "filterlines.includeLinesWithRegex",
-        "key": "ctrl-k ctrl-r",
-        "mac": "cmd-k cmd-r"
-      },
-      {
-        "command": "filterlines.includeLinesWithString",
-        "key": "ctrl-k ctrl-s",
-        "mac": "cmd-k cmd-s"
-      }
-    ],
-    "configuration": {
-      "title": "Filter Lines",
-      "properties": {
-        "filterlines.caseSensitiveStringSearch": {
-          "type": "boolean",
-          "default": false,
-          "description": "If true, string searches are case-sensitive"
-        },
-        "filterlines.caseSensitiveRegexSearch": {
-          "type": "boolean",
-          "default": true,
-          "description": "If true, regex searches are case-sensitive"
-        },
-        "filterlines.preserveSearch": {
-          "type": "boolean",
-          "default": true,
-          "description": "If true, your latest search string or regex will be saved, and then restored for your next search. If false, the search string or regex will be blank"
-        },
-        "filterlines.lineNumbers": {
-          "type": "boolean",
-          "default": false,
-          "description": "Show source file line numbers in results"
-        },
-        "filterlines.createNewTab": {
-          "type": "boolean",
-          "default": true,
-          "description": "Create new tab for filter results"
-        },
-        "filterlines.indentContext": {
-          "type": "boolean",
-          "default": true,
-          "description": "Indent context lines"
-        },
-        "filterlines.foldIndentedContext": {
-          "type": "boolean",
-          "default": true,
-          "description": "Fold indented context lines"
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "filterLines",
+          "title": "Filter Lines",
+          "icon": "doc/logo.png"
         }
-      }
+      ]
+    },
+    "views": {
+      "filterLines": [
+        {
+          "id": "filterLines.view",
+          "name": "Filter Lines",
+          "type": "webview"
+        }
+      ]
     }
   },
   "scripts": {
@@ -146,6 +70,7 @@
     "@types/node": "^10.0.0",
     "@types/sinon": "^9.0.4",
     "@types/vscode": "^1.67.0",
+    "@types/vscode-webview": "^1.57.5",
     "@vscode/test-cli": "^0.0.9",
     "@vscode/test-electron": "^2.3.9",
     "assert": "^2.0.0",

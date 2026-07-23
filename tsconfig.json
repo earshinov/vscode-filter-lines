@@ -9,5 +9,10 @@
     "rootDir": "src",
     "sourceMap": true,
     "target": "es6"
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "out",
+    "src/test"
+  ]
 }

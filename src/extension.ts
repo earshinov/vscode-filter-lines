@@ -1,352 +1,339 @@
 import vscode from 'vscode';
 
-import { escapeRegexp, catchErrors } from './utils';
-import { IDependencyRegistry, ExtensionSettings, DependencyRegistry } from './di';
-import { IConfiguration } from './configuration';
+import { catchErrors } from './utils';
+import {
+  FilterParams,
+  OutputMode,
+  SearchType,
+  buildFilteredContent,
+  computeFoldRanges,
+  computeMatchingLines,
+  constructSearchRegExp,
+  expandWithContext,
+} from './filter';
+import { ExtensionToWebview, FormState, WebviewToExtension } from './messages';
 
 
-type SearchType = 'string'|'regex';
+const STATE_KEY = 'filterLines.formState';
+const HISTORY_LIMIT = 20;
 
-interface PromptFilterLinesArgs {
-  search_type?: SearchType;
-  invert_search?: boolean;
-  with_context?: boolean;
-  context?: number|null;
-  before_context?: number|null;
-  after_context?: number|null;
-}
-
-interface FilterLinesArgs {
-  search_type?: SearchType;
-  invert_search?: boolean;
-  needle: string;
-  context?: number|null;
-  before_context?: number|null;
-  after_context?: number|null;
-}
-
-
-export const DI = {
-
-  /* istanbul ignore next */
-  getRegistry(context: vscode.ExtensionContext): IDependencyRegistry {
-    return new DependencyRegistry(context);
-  }
+const DEFAULT_STATE: Readonly<FormState> = {
+  needle: '',
+  caseSensitive: false,
+  useRegex: true,
+  action: 'include',
+  outputMode: 'newtab',
+  context: 0,
+  lineNumbers: false,
+  history: [],
 };
 
 
-export function activate(this: void, extensionContext: vscode.ExtensionContext) {
+/** Remembers the last active text editor so filtering still targets it while the sidebar view is focused. */
+let lastEditor: vscode.TextEditor | undefined;
 
-  extensionContext.subscriptions.push(
+function getTargetEditor(): vscode.TextEditor | undefined {
+  const active = vscode.window.activeTextEditor;
+  if (active)
+    return active;
+  // The sidebar view can be focused while an editor is still open, so fall back to the last
+  // active editor — but only if its tab is still open. `lastEditor` isn't cleared when all
+  // editors close (onDidChangeActiveTextEditor(undefined) is ignored), so validate it against
+  // the currently visible editors; otherwise we'd filter a stale/closed document into a new tab.
+  if (lastEditor) {
+    const stillOpen = vscode.window.visibleTextEditors.find((e) => e.document === lastEditor!.document);
+    if (stillOpen)
+      return stillOpen;
+  }
+  return undefined;
+}
 
-    // Provide wrapper commands to be bound in package.json > "contributes" > "commands".
-    // If one command is bound several times with different "args", VS Code only displays the last entry in the Ctrl-Shift-P menu.
-    vscode.commands.registerTextEditorCommand('filterlines.includeLinesWithRegex', catchErrors((editor, edit, args) => {
-      const args_: PromptFilterLinesArgs = { search_type: 'regex', invert_search: false };
-      vscode.commands.executeCommand('filterlines.promptFilterLines', args_);
-    })),
-    vscode.commands.registerTextEditorCommand('filterlines.includeLinesWithString', catchErrors((editor, edit, args) => {
-      const args_: PromptFilterLinesArgs = { search_type: 'string', invert_search: false };
-      vscode.commands.executeCommand('filterlines.promptFilterLines', args_ );
-    })),
-    vscode.commands.registerTextEditorCommand('filterlines.excludeLinesWithRegex', catchErrors((editor, edit, args) => {
-      const args_: PromptFilterLinesArgs = { search_type: 'regex', invert_search: true };
-      vscode.commands.executeCommand('filterlines.promptFilterLines', args_);
-    })),
-    vscode.commands.registerTextEditorCommand('filterlines.excludeLinesWithString', catchErrors((editor, edit, args) => {
-      const args_: PromptFilterLinesArgs = { search_type: 'string', invert_search: true };
-      vscode.commands.executeCommand('filterlines.promptFilterLines', args_ );
-    })),
-    vscode.commands.registerTextEditorCommand('filterlines.includeLinesWithRegexAndContext', catchErrors((editor, edit, args) => {
-      const args_: PromptFilterLinesArgs = { search_type: 'regex', invert_search: false, with_context: true };
-      vscode.commands.executeCommand('filterlines.promptFilterLines', args_);
-    })),
-    vscode.commands.registerTextEditorCommand('filterlines.includeLinesWithStringAndContext', catchErrors((editor, edit, args) => {
-      const args_: PromptFilterLinesArgs = { search_type: 'string', invert_search: false, with_context: true };
-      vscode.commands.executeCommand('filterlines.promptFilterLines', args_ );
-    })),
-    vscode.commands.registerTextEditorCommand('filterlines.excludeLinesWithRegexAndContext', catchErrors((editor, edit, args) => {
-      const args_: PromptFilterLinesArgs = { search_type: 'regex', invert_search: true, with_context: true };
-      vscode.commands.executeCommand('filterlines.promptFilterLines', args_);
-    })),
-    vscode.commands.registerTextEditorCommand('filterlines.excludeLinesWithStringAndContext', catchErrors((editor, edit, args) => {
-      const args_: PromptFilterLinesArgs = { search_type: 'string', invert_search: true, with_context: true };
-      vscode.commands.executeCommand('filterlines.promptFilterLines', args_ );
-    })),
 
-    vscode.commands.registerTextEditorCommand('filterlines.promptFilterLines', catchErrors((editor, edit, args) => {
-      const {
-        search_type = 'regex',
-        invert_search = false,
-        with_context = false,
-        context = null,
-        before_context = null,
-        after_context = null,
-      } = args as PromptFilterLinesArgs || {};
-      const registry = DI.getRegistry(extensionContext);
-      promptFilterLines(registry, editor, edit, search_type, invert_search, with_context, context, before_context, after_context).then();
-    })),
+export function activate(this: void, context: vscode.ExtensionContext) {
+  lastEditor = vscode.window.activeTextEditor;
 
-    vscode.commands.registerTextEditorCommand('filterlines.filterLines', catchErrors((editor, edit, args) => {
-      const {
-        search_type = 'regex',
-        invert_search = false,
-        needle = '',
-        context = null,
-        before_context = null,
-        after_context = null,
-      } = args as FilterLinesArgs || {};
-      const registry = DI.getRegistry(extensionContext);
-      filterLines(registry, editor, edit, needle, search_type, invert_search, context, before_context, after_context);
+  const provider = new FilterLinesViewProvider(context);
+
+  context.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (editor)
+        lastEditor = editor;
+    }),
+
+    // retainContextWhenHidden keeps the webview alive while collapsed/hidden, so switching
+    // views doesn't reload and flash the form.
+    vscode.window.registerWebviewViewProvider(FilterLinesViewProvider.viewType, provider, {
+      webviewOptions: { retainContextWhenHidden: true },
+    }),
+
+    // Programmatic entry point (also usable from keybindings).
+    vscode.commands.registerCommand('filterlines.filterLines', catchErrors((args: Partial<FilterLinesArgs> | undefined) => {
+      const params = argsToParams(args || {});
+      const editor = getTargetEditor();
+      if (!editor) {
+        vscode.window.showInformationMessage('Filter Lines: open a file to filter first.');
+        return;
+      }
+      runFilter(editor, params).then();
     })),
   );
 }
 
+export function deactivate() { /* nothing to clean up */ }
 
-async function promptFilterLines(
-  registry: IDependencyRegistry,
-  editor: vscode.TextEditor,
-  edit: vscode.TextEditorEdit,
-  searchType: SearchType,
-  invertSearch: boolean,
-  withContext: boolean,
-  context: number|null,
-  beforeContext: number|null,
-  afterContext: number|null,
-): Promise<void> {
 
-  const searchText = await promptForSearchText(registry, editor, searchType, invertSearch);
-  if (searchText == null)
-    return;
+interface FilterLinesArgs {
+  search_type: SearchType;
+  invert_search: boolean;
+  needle: string;
+  case_sensitive: boolean;
+  context: number;
+  output_mode: OutputMode;
+  line_numbers: boolean;
+}
 
-  let contextString: string | undefined;
-  if (withContext) {
-    contextString = await promptForContext(registry);
-    if (contextString == null)
-      return;
-
-    try {
-      [beforeContext, afterContext] = parseContext(contextString);
-    }
-    catch {
-      await vscode.window.showErrorMessage('Expected a single number or before_context:after_context');
-      return;
-    }
-  }
-
-  if (registry.configuration.get('preserveSearch'))
-    registry.searchStorage.set('latestSearch', searchText);
-  // Store last used context irrespective of the preserveSearch setting
-  if (contextString != null)
-    registry.contextStorage.set('latestContext', contextString);
-
-  const args: FilterLinesArgs = {
-    search_type: searchType,
-    invert_search: invertSearch,
-    needle: searchText,
-    context: context,
-    before_context: beforeContext,
-    after_context: afterContext,
+function argsToParams(args: Partial<FilterLinesArgs>): FilterParams {
+  return {
+    searchType: args.search_type ?? 'regex',
+    invertSearch: args.invert_search ?? false,
+    needle: args.needle ?? '',
+    caseSensitive: args.case_sensitive ?? false,
+    context: Math.max(0, args.context ?? 0),
+    outputMode: args.output_mode ?? 'newtab',
+    lineNumbers: args.line_numbers ?? false,
   };
-  vscode.commands.executeCommand('filterlines.filterLines', args);
 }
 
-function promptForSearchText(registry: IDependencyRegistry, editor: vscode.TextEditor, searchType: SearchType, invertSearch: boolean): Thenable<string|undefined> {
-  const prompt = `Filter to lines ${invertSearch ? 'not ' : ''}${searchType === 'string' ? 'containing' : 'matching'}: `;
-
-  let searchText = registry.configuration.get('preserveSearch') ? registry.searchStorage.get('latestSearch') : '';
-  if (!searchText) {
-    // Use word under cursor
-    const wordRange = editor.document.getWordRangeAtPosition(editor.selection.active);
-    if (wordRange)
-      searchText = editor.document.getText(wordRange);
-  }
-
-  return vscode.window.showInputBox({
-    prompt,
-    value: searchText,
-  });
+function stateToParams(state: FormState): FilterParams {
+  return {
+    searchType: state.useRegex ? 'regex' : 'string',
+    invertSearch: state.action === 'exclude',
+    needle: state.needle,
+    caseSensitive: state.caseSensitive,
+    context: Math.max(0, state.context | 0),
+    outputMode: state.outputMode,
+    lineNumbers: state.lineNumbers,
+  };
 }
 
-function promptForContext(registry: IDependencyRegistry): Thenable<string|undefined> {
-  return vscode.window.showInputBox({
-    prompt: 'Context (a single number or before_context:after_context)',
-    value: registry.contextStorage.get('latestContext'),
-  });
-}
 
-const RE_SINGLE_NUMBER = /^\s*(\d+)\s*$/;
-const RE_TWO_NUMBERS = /^\s*(\d+)\s*:\s*(\d+)\s*$/;
-const RE_SPACES = /^\s*$/;
+// #region Filtering
 
-function parseContext(contextString: string): [number, number] {
-  let match = RE_SINGLE_NUMBER.exec(contextString);
-  if (match) {
-    const context = parseInt(match[1], 10);
-    return [context, context];
-  }
-
-  match = RE_TWO_NUMBERS.exec(contextString);
-  if (match) {
-    const beforeContext = parseInt(match[1], 10);
-    const afterContext = parseInt(match[2], 10);
-    return [beforeContext, afterContext];
-  }
-
-  match = RE_SPACES.exec(contextString);
-  if (match) {
-    const context = 0;
-    return [context, context];
-  }
-
-  throw new Error(`Invalid context string: '${contextString}'`);
-}
-
-async function filterLines(
-  registry: IDependencyRegistry,
+export async function runFilter(
   editor: vscode.TextEditor,
-  edit: vscode.TextEditorEdit,
-  searchText: string,
-  searchType: SearchType,
-  invertSearch: boolean,
-  context: number|null,
-  beforeContext: number|null,
-  afterContext: number|null,
-) {
-  if (context == null) context = 0;
-  if (beforeContext == null) beforeContext = context;
-  if (afterContext == null) afterContext = context;
-
-  const config = registry.configuration;
-  const lineNumbers = config.get('lineNumbers');
-  const indentContext = beforeContext + afterContext > 0 && config.get('indentContext');
-  const contextIndentation = indentContext ? getIndentation(editor) : null;
-
-  const re = constructSearchRegExp(config, searchText, searchType);
-
-  const matchingLines: number[] = [];
-  for (let lineno = 0; lineno < editor.document.lineCount; ++lineno) {
-    const lineText = editor.document.lineAt(lineno).text;
-    if (re.test(lineText) !== invertSearch) {
-      if (!indentContext) {
-        // Put context lines into `matchingLines`
-        const min = matchingLines.length > 0 ? matchingLines[matchingLines.length - 1] + 1 : 0;
-        const [start, end] = linesWithContext(editor.document, lineno, beforeContext, afterContext, min);
-        for (let i = start; i < end; ++i)
-          matchingLines.push(i);
-      }
-      else {
-        // Context lines will be handled separately
-        matchingLines.push(lineno);
-      }
-    }
+  params: FilterParams,
+  onInvalidNeedle?: (message: string) => void,
+): Promise<void> {
+  let re: RegExp;
+  try {
+    re = constructSearchRegExp(params.needle, params.searchType, params.caseSensitive);
+  }
+  catch (e) {
+    const message = `Invalid regular expression: ${(e as Error).message}`;
+    // The webview marks the search field invalid; the command path has no field, so notify.
+    if (onInvalidNeedle)
+      onInvalidNeedle(message);
+    else
+      await vscode.window.showErrorMessage(`Filter Lines: ${message}`);
+    return;
   }
 
-  // Showing filtered output in a new tab
-  if (config.get('createNewTab')) {
-    const content: string[] = [];
-    for (const lineno of matchingLines) {
-      formatLine(editor, lineno, null, lineNumbers, content);
-      content.push('\n');
-      if (indentContext) {
-        const [start, end] = linesWithContext(editor.document, lineno, beforeContext, afterContext);
-        if (end - start > 1)
-          for (let i = start; i < end; ++i) {
-            formatLine(editor, i, contextIndentation, lineNumbers, content);
-            content.push('\n');
-          }
-      }
-    }
+  const document = editor.document;
+  const lines: string[] = [];
+  for (let lineno = 0; lineno < document.lineCount; ++lineno)
+    lines.push(document.lineAt(lineno).text);
 
-    const doc = await vscode.workspace.openTextDocument({ language: editor.document.languageId, content: content.join('') });
-    await vscode.window.showTextDocument(doc);
+  const matchingLines = computeMatchingLines(lines, re, params.invertSearch);
+  const keptLines = expandWithContext(matchingLines, params.context, lines.length);
 
-    if (indentContext && config.get('foldIndentedContext'))
-      fold();
+  switch (params.outputMode) {
+    case 'fold':
+      await applyFold(editor, keptLines, lines.length);
+      return;
+    case 'inplace':
+      await applyInPlace(editor, lines, keptLines, params.lineNumbers);
+      return;
+    case 'newtab':
+      await applyNewTab(editor, lines, keptLines, params.lineNumbers);
+      return;
+  }
+}
+
+async function applyNewTab(editor: vscode.TextEditor, lines: string[], keptLines: number[], lineNumbers: boolean): Promise<void> {
+  const content = buildFilteredContent(lines, keptLines, lineNumbers);
+  const doc = await vscode.workspace.openTextDocument({ language: editor.document.languageId, content });
+  await vscode.window.showTextDocument(doc);
+}
+
+async function applyInPlace(editor: vscode.TextEditor, lines: string[], keptLines: number[], lineNumbers: boolean): Promise<void> {
+  const content = buildFilteredContent(lines, keptLines, lineNumbers);
+  const lastLine = editor.document.lineCount - 1;
+  const fullRange = new vscode.Range(0, 0, lastLine, editor.document.lineAt(lastLine).text.length);
+  await editor.edit((edit) => edit.replace(fullRange, content));
+}
+
+/**
+ * Fold mode (issue #35): keep the whole file, fold away the non-matching runs.
+ * Uses manual folding ranges created from a multi-selection, which is the only
+ * reliable way to fold arbitrary line ranges through the VS Code API. Each range
+ * is anchored under the preceding kept line (see `computeFoldRanges`).
+ */
+async function applyFold(editor: vscode.TextEditor, keptLines: number[], lineCount: number): Promise<void> {
+  const ranges = computeFoldRanges(keptLines, lineCount);
+
+  // Bring the target document to the foreground so folding commands act on it.
+  const shown = await vscode.window.showTextDocument(editor.document, { viewColumn: editor.viewColumn, preserveFocus: false });
+
+  // Clear folds from a previous run. removeManualFoldingRanges only affects ranges
+  // intersecting the current selection, so select the whole document first to remove
+  // all of them; otherwise stale folds from the last search would remain.
+  const lastLine = shown.document.lineCount - 1;
+  shown.selection = new vscode.Selection(0, 0, lastLine, shown.document.lineAt(lastLine).text.length);
+  await vscode.commands.executeCommand('editor.removeManualFoldingRanges');
+  await vscode.commands.executeCommand('editor.unfoldAll');
+  if (ranges.length === 0) {
+    shown.selection = new vscode.Selection(0, 0, 0, 0);
+    return;
   }
 
-  // In-place filtering
-  else {
-    const eol = editor.document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
+  // End each selection at the full width of the last folded line. VS Code's
+  // createFoldingRangeFromSelection trims a selection ending at column 0 back by
+  // one line (its `endColumn === 1` heuristic), so ending at column 0 would leave
+  // the last line of the run unfolded. Staying within `[header, end-1]` also keeps
+  // selections from overlapping the next run's header.
+  shown.selections = ranges.map(([header, end]) => {
+    const lastLine = end - 1;
+    const lastCol = shown.document.lineAt(lastLine).text.length;
+    return new vscode.Selection(header, 0, lastLine, lastCol);
+  });
+  await vscode.commands.executeCommand('editor.createFoldingRangeFromSelection');
+  shown.selection = new vscode.Selection(0, 0, 0, 0);
+}
 
-    let lineno = editor.document.lineCount - 1;
-    while (matchingLines.length > 0) {
-      const matchingLine = matchingLines.pop()!;
-      while (lineno > matchingLine) {
-        const line = editor.document.lineAt(lineno);
-        edit.delete(line.rangeIncludingLineBreak);
-        --lineno;
-      }
-      const line = editor.document.lineAt(lineno);
+// #endregion
 
-      // Insert context
-      if (indentContext) {
-        const [start, end] = linesWithContext(editor.document, lineno, beforeContext, afterContext);
-        if (end - start > 1) {
-          const content: string[] = [];
-          for (let i = start; i < end; ++i) {
-            content.push(eol);
-            formatLine(editor, i, contextIndentation, lineNumbers, content);
+
+// #region Webview view
+
+class FilterLinesViewProvider implements vscode.WebviewViewProvider {
+
+  static readonly viewType = 'filterLines.view';
+
+  constructor(private readonly context: vscode.ExtensionContext) { }
+
+  private get state(): FormState {
+    return { ...DEFAULT_STATE, ...this.context.globalState.get<Partial<FormState>>(STATE_KEY) };
+  }
+
+  private save(state: FormState): void {
+    this.context.globalState.update(STATE_KEY, state);
+  }
+
+  // @override
+  resolveWebviewView(webviewView: vscode.WebviewView): void {
+    const webview = webviewView.webview;
+    webview.options = {
+      enableScripts: true,
+      localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'media')],
+    };
+    webview.html = this.getHtml(webview);
+
+    const post = (message: ExtensionToWebview) => webview.postMessage(message);
+
+    webviewView.webview.onDidReceiveMessage(catchErrors((message: WebviewToExtension) => {
+      switch (message.type) {
+        case 'ready':
+          post({ type: 'restore', state: this.state });
+          return;
+        case 'persist':
+          this.save(message.state);
+          return;
+        case 'filter': {
+          const state = message.state;
+          this.save(state);
+          const editor = getTargetEditor();
+          if (!editor) {
+            vscode.window.showInformationMessage('Filter Lines: open a file to filter first.');
+            return;
           }
-          edit.insert(line.range.end, content.join(''));
+          runFilter(editor, stateToParams(state), (errorMessage) => {
+            post({ type: 'invalid', message: errorMessage });
+          }).then();
+          return;
         }
       }
+    }), undefined, this.context.subscriptions);
+  }
 
-      // Insert line number
-      if (lineNumbers)
-        edit.insert(line.range.start, formatLineNumber(lineno));
+  private getHtml(webview: vscode.Webview): string {
+    const nonce = getNonce();
+    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'main.js'));
+    const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'main.css'));
+    const csp = [
+      `default-src 'none'`,
+      `style-src ${webview.cspSource}`,
+      `script-src 'nonce-${nonce}'`,
+    ].join('; ');
 
-      --lineno;
-    }
-    while (lineno >= 0) {
-      const line = editor.document.lineAt(lineno);
-      edit.delete(line.rangeIncludingLineBreak);
-      --lineno;
-    }
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="${csp}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="${styleUri}" rel="stylesheet">
+  <title>Filter Lines</title>
+</head>
+<body>
+  <div class="search">
+    <div id="search-box" class="search--box">
+      <input id="needle" type="text" class="search--input" placeholder="matching regex…" spellcheck="false" autocomplete="off">
+    </div>
+    <div class="search--toggles">
+      <button id="toggle-case" class="search--toggle" title="Match Case">Aa</button>
+      <button id="toggle-regex" class="search--toggle" title="Use Regular Expression">.*</button>
+    </div>
+    <input id="context" type="number" min="0" class="numberInput" value="0" title="Context Lines">
+  </div>
+  <div id="search-validation" class="searchValidation" hidden></div>
+  <div id="history-hint" class="fieldHint">Use ↑ / ↓ for recent searches</div>
 
-    if (indentContext && config.get('foldIndentedContext'))
-        fold();
+  <div class="formRow formRow-inline">
+    <span class="fieldLabel">Action</span>
+    <div class="buttonGroup" id="action" role="radiogroup">
+      <button class="buttonGroup--button" data-value="include">Include</button>
+      <button class="buttonGroup--button" data-value="exclude">Exclude</button>
+    </div>
+  </div>
+
+  <div class="formRow formRow-inline">
+    <span class="fieldLabel">Output</span>
+    <div class="buttonGroup" id="output" role="radiogroup">
+      <button class="buttonGroup--button" data-value="fold">Fold</button>
+      <button class="buttonGroup--button" data-value="inplace">In-place</button>
+      <button class="buttonGroup--button" data-value="newtab">New tab</button>
+    </div>
+  </div>
+
+  <label class="formRow checkboxRow" id="line-numbers-row">
+    <input id="line-numbers" type="checkbox">
+    <span class="fieldLabel">Add line numbers</span>
+  </label>
+
+  <button id="filter" class="filterButton">Filter</button>
+
+  <script nonce="${nonce}" src="${scriptUri}"></script>
+</body>
+</html>`;
   }
 }
 
-function constructSearchRegExp(config: IConfiguration<ExtensionSettings>, searchText: string, searchType: SearchType): RegExp {
-  let flags = '';
-  if (searchType === 'string') {
-    searchText = escapeRegexp(searchText);
-    if (!config.get('caseSensitiveStringSearch'))
-      flags += 'i';
-  }
-  else {
-    if (!config.get('caseSensitiveRegexSearch'))
-      flags += 'i';
-  }
-  return new RegExp(searchText, flags);
+function getNonce(): string {
+  let text = '';
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < 32; ++i)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  return text;
 }
 
-function linesWithContext(document: vscode.TextDocument, lineno: number, beforeContext: number, afterContext: number, min = 0): [number, number] {
-  const start = Math.max(lineno - beforeContext, min);
-  const end = Math.min(lineno + afterContext + 1, document.lineCount);
-  return [start, end];
-}
-
-function formatLine(editor: vscode.TextEditor, lineno: number, indentation: string | null, lineNumbers: boolean, acc: string[]): void {
-  if (indentation)
-    acc.push(indentation);
-  if (lineNumbers)
-    acc.push(formatLineNumber(lineno));
-  acc.push(editor.document.lineAt(lineno).text);
-}
-
-function formatLineNumber(lineno: number): string {
-  // +1 to make line numbers 1-based
-  return `${String(lineno + 1).padStart(5)}: `;
-}
-
-function getIndentation(editor: vscode.TextEditor): string {
-  return editor.options.insertSpaces ? ' '.repeat(editor.options.tabSize as number) : '\t';
-}
-
-/* istanbul ignore next */
-function fold() {
-  setTimeout(() => vscode.commands.executeCommand('editor.foldAll'), 100);
-}
+// #endregion
