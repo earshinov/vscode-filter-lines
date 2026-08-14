@@ -1,0 +1,15 @@
+analytics-api        production     healthy
+auth-service         production     healthy
+billing-worker       production     warning
+catalog-api          production     healthy
+checkout-api         production     error
+email-worker         staging        healthy
+inventory-api        production     healthy
+notifications-api    staging        warning
+orders-api           production     healthy
+payments-api         production     error
+recommendations      staging        healthy
+reporting-worker     production     warning
+search-api           production     healthy
+shipping-api         production     healthy
+user-profile-api     production     healthy

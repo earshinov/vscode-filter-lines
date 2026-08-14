@@ -94,11 +94,14 @@ interface FilterLinesArgs {
 }
 
 function argsToParams(args: Partial<FilterLinesArgs>): FilterParams {
+  const searchType = args.search_type ?? 'regex';
   return {
-    searchType: args.search_type ?? 'regex',
+    searchType,
     invertSearch: args.invert_search ?? false,
     needle: args.needle ?? '',
-    caseSensitive: args.case_sensitive ?? false,
+    // Preserve the v1 command defaults: regex searches were case-sensitive,
+    // while literal string searches were case-insensitive.
+    caseSensitive: args.case_sensitive ?? searchType === 'regex',
     context: Math.max(0, args.context ?? 0),
     outputMode: args.output_mode ?? 'newtab',
     lineNumbers: args.line_numbers ?? false,

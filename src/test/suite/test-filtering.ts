@@ -71,4 +71,24 @@ suite('Filtering (all combinations)', () => {
                   assert.strictEqual(editor.document.getText(), q.fixture);
               });
             }
+
+  test('v1 default: regex search is case-sensitive', async () => {
+    await openDoc(MIXED);
+    await vscode.commands.executeCommand('filterlines.filterLines', {
+      search_type: 'regex',
+      needle: 'Alpha',
+      output_mode: 'newtab',
+    });
+    assert.strictEqual(vscode.window.activeTextEditor!.document.getText(), 'Alpha\n');
+  });
+
+  test('v1 default: string search is case-insensitive', async () => {
+    await openDoc(MIXED);
+    await vscode.commands.executeCommand('filterlines.filterLines', {
+      search_type: 'string',
+      needle: 'alpha',
+      output_mode: 'newtab',
+    });
+    assert.strictEqual(vscode.window.activeTextEditor!.document.getText(), 'Alpha\nALPHA\n');
+  });
 });

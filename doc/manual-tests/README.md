@@ -8,7 +8,8 @@ These scenarios deliberately focus on what automation can't reach: the webview U
 1. Build the extension: `yarn build`.
 2. Press `F5` in VS Code to launch the Extension Development Host.
 3. Open the **Filter Lines** view from the Activity Bar (or run **Focus on Filter Lines View** from the Command Palette).
-4. Open one of the fixture files from this folder in an editor tab, then switch focus to the view and run a scenario.
+4. Open one of the fixture files from [`../sample-files`](../sample-files) in an
+   editor tab, then switch focus to the view and run a scenario.
 
 > The view acts on the **last active text editor**. Open a fixture, then click into the view — filtering still targets that editor.
 
@@ -16,11 +17,9 @@ These scenarios deliberately focus on what automation can't reach: the webview U
 
 | File | Purpose |
 |------|---------|
-| [`numbers.txt`](numbers.txt) | Small deterministic fixture for the in-place / line-number / empty-search scenarios. |
-| [`sample.log`](sample.log) | App log with `INFO` / `DEBUG` / `WARN` / `ERROR` lines and stack traces — good for regex, context and Fold. |
-| [`access_log.txt`](access_log.txt) | CLF access log — good for regex on status codes / paths. |
-
----
+| [`../sample-files/numbers.txt`](../sample-files/numbers.txt) | Small deterministic fixture for the in-place / line-number / empty-search scenarios. |
+| [`../sample-files/sample.log`](../sample-files/sample.log) | App log with `INFO` / `DEBUG` / `WARN` / `ERROR` lines and stack traces — good for regex, context and Fold. |
+| [`../sample-files/access.log`](../sample-files/access.log) | CLF access log — good for regex on status codes / paths. |
 
 ## Scenarios
 
@@ -90,5 +89,5 @@ Run one quick end-to-end search below to confirm the webview actually drives the
 
 ### 11. Access log (ad-hoc regex, exploratory)
 
-- Fixture: `access_log.txt`. Regex. Search `" [45]\d\d ` to keep 4xx/5xx responses, or `/api/` to keep API calls.
+- Fixture: `access.log`. Regex. Search `" [45]\d\d ` to keep 4xx/5xx responses, or `/api/` to keep API calls.
 - Try each output mode and confirm results look right (no exact assertion — sanity check).
