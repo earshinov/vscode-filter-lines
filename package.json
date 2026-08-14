@@ -17,6 +17,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onStartupFinished",
     "onView:filterLines.view",
     "onCommand:filterlines.filterLines"
   ],

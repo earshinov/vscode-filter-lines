@@ -50,6 +50,7 @@ Screenshot instructions:
 - Enable .* and Aa; set Context to 1; select Include and Fold.
 - Capture BEFORE filtering. Include the Activity Bar icon, the complete Filter
   Lines view, and enough of sample.log to make the target document recognizable.
+- Save as media/filter-lines-view.png; WELCOME.md reuses the same image.
 -->
 
 Filter Lines applies to the most recently focused text editor.
@@ -86,6 +87,7 @@ Screenshot instructions:
   editor with collapsed ranges and visible ERROR/WARN lines.
 - One after-only screenshot is sufficient because the unchanged source remains
   visible when a fold is expanded.
+- Save as media/filter-lines-fold.png; WELCOME.md reuses the same image.
 -->
 
 #### In-place
@@ -100,6 +102,8 @@ Screenshot instructions:
 - Capture a BEFORE/AFTER pair with the same crop. Include the complete Filter
   Lines view and editor in both images so it is clear that the current document
   was replaced.
+- Save as media/filter-lines-in-place-before.png and
+  media/filter-lines-in-place-after.png.
 - Use Undo after the second screenshot.
 -->
 
@@ -116,6 +120,7 @@ Screenshot instructions:
   services.txt tab, and the new result tab.
 - One after-only screenshot is sufficient because both tabs show that the source
   was preserved and a new document was created.
+- Save as media/filter-lines-new-tab.png.
 -->
 
 **Add line numbers** prefixes output lines with their original 1-based line
@@ -142,6 +147,8 @@ multiple lines.
 
 ## Upgrading from 1.x
 
+<!-- Keep this section in sync with "Upgrading from 1.x" in WELCOME.md. -->
+
 Version 2 replaces the separate commands and prompt sequence with the Filter
 Lines view:
 
@@ -159,8 +166,8 @@ Lines view:
 
 ## Programmatic use
 
-Extensions and custom keybindings can invoke the `filterlines.filterLines` command with an object
-containing any of these optional properties:
+Custom keybindings can invoke the `filterlines.filterLines` command with an
+object containing any of these optional properties:
 
 | Argument | Values | Default | Description |
 |----------|--------|---------|-------------|

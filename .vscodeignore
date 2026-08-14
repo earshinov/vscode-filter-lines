@@ -12,3 +12,4 @@ media/tsconfig.json
 !out/**/*.js
 !package.json
 !README.md
+!WELCOME.md

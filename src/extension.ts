@@ -12,6 +12,7 @@ import {
   expandWithContext,
 } from './filter';
 import { ExtensionToWebview, FormState, WebviewToExtension } from './messages';
+import { showWelcome } from './welcome';
 
 
 const STATE_KEY = 'filterLines.formState';
@@ -48,7 +49,7 @@ function getTargetEditor(): vscode.TextEditor | undefined {
 }
 
 
-export function activate(this: void, context: vscode.ExtensionContext) {
+export async function activate(this: void, context: vscode.ExtensionContext): Promise<void> {
   lastEditor = vscode.window.activeTextEditor;
 
   const provider = new FilterLinesViewProvider(context);
@@ -77,6 +78,9 @@ export function activate(this: void, context: vscode.ExtensionContext) {
       return runFilter(editor, params);
     })),
   );
+
+  if (context.extensionMode !== vscode.ExtensionMode.Test)
+    await showWelcome(context);
 }
 
 /* istanbul ignore next: nothing to clean up */
