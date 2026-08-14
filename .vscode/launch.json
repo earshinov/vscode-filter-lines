@@ -6,16 +6,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Build Process",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceFolder}/node_modules/@babel/cli/bin/babel.js",
-      "args": ["src", "--out-dir", "out", "--extensions", ".js,.ts"],
-      "env": {
-        //"BABEL_ENV": "coverage"
-      }
-    },
-    {
       "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
@@ -35,6 +25,16 @@
       ],
       "outFiles": ["${workspaceFolder}/out/test/**/*.js"],
       "preLaunchTask": "${defaultBuildTask}"
-    }
+    },
+    {
+      "name": "Debug Build Process",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/@babel/cli/bin/babel.js",
+      "args": ["src", "--out-dir", "out", "--extensions", ".js,.ts"],
+      "env": {
+        //"BABEL_ENV": "coverage"
+      }
+    },
   ]
 }
