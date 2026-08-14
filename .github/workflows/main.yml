@@ -9,15 +9,54 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+      # Set up VS Code test dependencies
+      # https://github.com/microsoft/vscode/issues/33998
       - run: |
-          # https://github.com/microsoft/vscode/issues/33998
           sudo apt-get install libsecret-1-dev
-
-          export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-
-          yarn
+          echo 'DISPLAY=:99.0' >> "$GITHUB_ENV"
+      - run: |
+          yarn install --frozen-lockfile
           yarn run lint
           yarn run test
           yarn run coverage:report
       - uses: coverallsapp/github-action@v2
+
+  # To publish a release on GitHub:
+  #
+  #   # Beta:
+  #   git tag v2.0.0-beta.1
+  #   git push origin v2.0.0-beta.1
+  #
+  #   # Stable:
+  #   git tag v2.0.0
+  #   git push origin v2.0.0
+  #
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: |
+          VSCE_ARGS=()
+          GH_ARGS=()
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            VSCE_ARGS+=(--pre-release)
+            GH_ARGS+=(--prerelease)
+          fi
+
+          yarn install --frozen-lockfile
+          yarn vsce package "${VSCE_ARGS[@]}" --out "filter-lines-${GITHUB_REF_NAME}.vsix"
+          gh release create "$GITHUB_REF_NAME" "filter-lines-${GITHUB_REF_NAME}.vsix" \
+            "${GH_ARGS[@]}" \
+            --verify-tag \
+            --title="$GITHUB_REF_NAME" \
+            --notes ""
+        env:
+          GH_TOKEN: ${{ github.token }}
