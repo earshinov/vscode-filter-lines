@@ -2,7 +2,7 @@
   "name": "filter-lines",
   "displayName": "Filter Lines",
   "description": "Quickly find all lines matching a string or regular expression",
-  "icon": "doc/logo.png",
+  "icon": "media/logo.png",
   "version": "2.0.0",
   "publisher": "earshinov",
   "repository": {

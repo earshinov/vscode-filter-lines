@@ -5,7 +5,6 @@
 
 # Whitelist
 !CHANGELOG.md
-!doc/logo.png
 !LICENSE
 !media/**
 media/tsconfig.json

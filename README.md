@@ -19,43 +19,38 @@ Source and framing:
 Prepare before recording:
 - Restore sample.log and unfold all lines.
 - Clear the search box.
-- Select Include, enable .* and Aa, set Context to 0, select New tab, and disable
-  Add line numbers.
+- Select Include, enable .* and Aa, set Context to 0, and select Fold.
 - Close the Filter Lines view so the recording starts with only sample.log.
 
 Record:
 1. Pause briefly on sample.log, then open Filter Lines from the Activity Bar.
 2. Type ERROR|WARN and pause so the completed expression is readable.
-3. Select Fold and click Filter. Pause on the folded document.
-4. Change Context from 0 to 1 and click Filter again. Pause so the newly visible
-   context lines can be compared with the previous result.
-5. Select New tab, enable Add line numbers, and click Filter.
-6. End on the new result tab, with the original sample.log tab, the configured
-   Filter Lines view, and numbered output all visible.
+3. Click Filter and end on the folded document with the configured Filter Lines
+   view still visible.
 
-Keep the finished GIF around 15-20 seconds. Trim idle time at the beginning and
+Keep the finished GIF around 8-12 seconds. Trim idle time at the beginning and
 end, but leave roughly one second after each result so the loop is easy to follow.
 -->
 
 ## Quick start
 
 1. Open the text file you want to filter.
-2. Select **Filter Lines** in the Activity Bar, or use **Command Palette**
-   (`Ctrl-Shift-P`) → **Focus on Filter Lines View**.
+2. Select <img src="media/icon.png" alt="Filter Lines icon" style="height: 1.1em; position: relative; bottom: -0.15em;">
+   **Filter Lines** in the Activity Bar, or use **Command Palette** (`Ctrl-Shift-P`) → **Focus on Filter Lines View**.
+
+<br>
 
 <!--
 Screenshot instructions:
-- Open doc/sample-files/sample.log.
 - Open the Filter Lines view and enter ERROR|WARN.
-- Enable .* and Aa; set Context to 1; select Include and Fold.
-- Capture BEFORE filtering. Include the Activity Bar icon, the complete Filter
-  Lines view, and enough of sample.log to make the target document recognizable.
-- Save as media/filter-lines-view.png; WELCOME.md reuses the same image.
+- Enable .* and Aa; set Context to 0; select Include and Fold.
+- Capture BEFORE filtering. Crop the image to the Activity Bar icon and the
+  complete Filter Lines view.
+- Save as media/screenshots/filter-lines-view.png; WELCOME.md reuses the same image.
 -->
+![Filter Lines view](media/screenshots/filter-lines-view.png)
 
 Filter Lines applies to the most recently focused text editor.
-
-## Filter Lines view
 
 ### Search
 
@@ -69,7 +64,7 @@ Filter Lines applies to the most recently focused text editor.
 - **Include** keeps matching lines
 - **Exclude** keeps non-matching lines, like `grep -v`
 
-**Context** adds the specified number of lines before and after every kept line.
+**Context** (0 on the screenshot above) adds the specified number of lines before and after every kept line.
 Overlapping context ranges are combined. With **Exclude**, context is applied to
 the non-matching lines that remain, consistent with `grep -v -C`.
 
@@ -83,12 +78,16 @@ Leaves the document unchanged and folds lines outside the result.
 Screenshot instructions:
 - Use doc/sample-files/sample.log.
 - Search ERROR|WARN with .* and Aa enabled, Context 0, Include, Fold.
-- Capture AFTER filtering. Include both the configured Filter Lines view and the
-  editor with collapsed ranges and visible ERROR/WARN lines.
-- One after-only screenshot is sufficient because the unchanged source remains
-  visible when a fold is expanded.
-- Save as media/filter-lines-fold.png; WELCOME.md reuses the same image.
+- Capture BEFORE and AFTER filtering with the same crop. Include both the
+  configured Filter Lines view and the editor.
+- Save as media/screenshots/filter-lines-fold-before.png and
+  media/screenshots/filter-lines-fold-after.png; WELCOME.md reuses both images.
 -->
+
+<p>
+  <img src="media/screenshots/filter-lines-fold-before.png" alt="Before using Fold mode" width="49%">
+  <img src="media/screenshots/filter-lines-fold-after.png" alt="After using Fold mode" width="49%">
+</p>
 
 #### In-place
 
@@ -102,10 +101,15 @@ Screenshot instructions:
 - Capture a BEFORE/AFTER pair with the same crop. Include the complete Filter
   Lines view and editor in both images so it is clear that the current document
   was replaced.
-- Save as media/filter-lines-in-place-before.png and
-  media/filter-lines-in-place-after.png.
+- Save as media/screenshots/filter-lines-in-place-before.png and
+  media/screenshots/filter-lines-in-place-after.png.
 - Use Undo after the second screenshot.
 -->
+
+<p>
+  <img src="media/screenshots/filter-lines-in-place-before.png" alt="Before using In-place mode" width="49%">
+  <img src="media/screenshots/filter-lines-in-place-after.png" alt="After using In-place mode" width="49%">
+</p>
 
 #### New tab
 
@@ -116,12 +120,16 @@ Screenshot instructions:
 - Use doc/sample-files/services.txt.
 - Search warning|error with .* enabled and Aa disabled, Context 0, Include,
   New tab, and Add line numbers disabled.
-- Capture AFTER filtering. Include the Filter Lines view, the original
-  services.txt tab, and the new result tab.
-- One after-only screenshot is sufficient because both tabs show that the source
-  was preserved and a new document was created.
-- Save as media/filter-lines-new-tab.png.
+- Capture BEFORE and AFTER filtering with the same crop. Include the Filter Lines
+  view and editor; the After image should show the newly opened result tab.
+- Save as media/screenshots/filter-lines-new-tab-before.png and
+  media/screenshots/filter-lines-new-tab-after.png.
 -->
+
+<p>
+  <img src="media/screenshots/filter-lines-new-tab-before.png" alt="Before using New tab mode" width="49%">
+  <img src="media/screenshots/filter-lines-new-tab-after.png" alt="After using New tab mode" width="49%">
+</p>
 
 **Add line numbers** prefixes output lines with their original 1-based line
 numbers, padded to five columns. It is available for In-place and New tab output.
@@ -131,9 +139,12 @@ Screenshot instructions:
 - Use doc/sample-files/numbers.txt.
 - Search 2 as literal text, Context 0, Include, New tab, and Add line numbers
   enabled.
-- Capture AFTER filtering. Include the Filter Lines view, the original tab, and
-  the numbered result in the new tab.
+- Capture AFTER filtering. Include the Filter Lines view and the numbered result
+  in the newly opened tab.
+- Save as media/screenshots/filter-lines-line-numbers.png.
 -->
+
+![Filtered output with line numbers](media/screenshots/filter-lines-line-numbers.png)
 
 ## Regular expressions
 

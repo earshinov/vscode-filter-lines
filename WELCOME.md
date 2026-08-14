@@ -1,4 +1,4 @@
-# Welcome to Filter Lines 2
+# <img src="media/logo.png" alt="Filter Lines logo" style="height: 1em; position: relative; bottom: -0.15em;"> Welcome to Filter Lines v2
 
 Filter Lines now puts search options and output controls in one Activity Bar
 view.
@@ -6,20 +6,28 @@ view.
 ## Quick start
 
 1. Open the text file you want to filter.
-2. Select **Filter Lines** in the Activity Bar, or use **Command Palette**
-   (`Ctrl-Shift-P`) → **Focus on Filter Lines View**.
+2. Select <img src="media/icon.png" alt="Filter Lines icon" style="height: 1.1em; position: relative; bottom: -0.15em;">
+   **Filter Lines** in the Activity Bar, or use **Command Palette** (`Ctrl-Shift-P`) → **Focus on Filter Lines View**.
 
 <!--
 Reuse the Quick start screenshot from README.md here:
-![Filter Lines view](media/filter-lines-view.png)
+![Filter Lines view](media/screenshots/filter-lines-view.png)
 -->
 
-🆕 Use **Fold** mode to collapse non-matching lines instead of filtering them out.
+![Filter Lines view](media/screenshots/filter-lines-view.png)
+
+**New in v2:** Use **Fold** mode to collapse non-matching lines instead of filtering them out.
 
 <!--
-Reuse the Fold screenshot from README.md here:
-![Fold mode](media/filter-lines-fold.png)
+Reuse the Fold screenshots from README.md here:
+![Before using Fold mode](media/screenshots/filter-lines-fold-before.png)
+![After using Fold mode](media/screenshots/filter-lines-fold-after.png)
 -->
+
+<p>
+  <img src="media/screenshots/filter-lines-fold-before.png" alt="Before using Fold mode" width="49%">
+  <img src="media/screenshots/filter-lines-fold-after.png" alt="After using Fold mode" width="49%">
+</p>
 
 See [README](README.md) for full documentation.
 
@@ -42,4 +50,4 @@ Lines view:
   irrelevant ranges without modifying the file.
 - Indented context has been removed; consider using **Fold** mode instead.
 
-See [Breaking changes](README.md#breaking-changes-since-v1) if you call `filterlines.filterLines` from a custom keybinding.
+Review [Breaking changes](README.md#breaking-changes-since-v1) if you use any of the `filterlines.*` commands in your custom keybindings.
