@@ -5,14 +5,15 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: 18
+          node-version: 24
       # Set up VS Code test dependencies
       # https://github.com/microsoft/vscode/issues/33998
       - run: |
-          sudo apt-get install libsecret-1-dev
+          sudo apt-get update
+          sudo apt-get install -y libsecret-1-dev
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           echo 'DISPLAY=:99.0' >> "$GITHUB_ENV"
       - run: |
@@ -39,10 +40,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: 18
+          node-version: 24
       - run: |
           VSCE_ARGS=()
           GH_ARGS=()
