@@ -5,8 +5,6 @@
 
 Filter lines of the current document by a string or a regular expression.
 
-![Demo](doc/demo.gif)
-
 <!--
 Intro GIF recording instructions:
 
@@ -31,6 +29,7 @@ Record:
 Keep the finished GIF around 8-12 seconds. Trim idle time at the beginning and
 end, but leave roughly one second after each result so the loop is easy to follow.
 -->
+![Demo](doc/demo.gif)
 
 ## Quick start
 
